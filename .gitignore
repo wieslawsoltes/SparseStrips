@@ -305,3 +305,4 @@ docs/docfx/api/*.yml
 docs/docfx/obj/
 *.so
 /BenchmarkDotNet.Artifacts
+/dotnet/BenchmarkDotNet.Artifacts
