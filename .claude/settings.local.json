@@ -20,7 +20,8 @@
       "Bash(cargo tree:*)",
       "WebSearch",
       "Bash(dotnet test:*)",
-      "Bash(nm:*)"
+      "Bash(nm:*)",
+      "Bash(dotnet add:*)"
     ],
     "deny": [],
     "ask": []

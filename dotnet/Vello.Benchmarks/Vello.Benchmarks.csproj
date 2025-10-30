@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.14.0" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="SkiaSharp" Version="3.116.1" />
   </ItemGroup>
 
   <ItemGroup>

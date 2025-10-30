@@ -1,10 +1,10 @@
-# Vello CPU Benchmarks: Rust vs .NET
+# Vello CPU Benchmarks: Rust vs .NET vs SkiaSharp
 
-This document describes the comprehensive benchmarking suite comparing the native Rust `vello_cpu` API with the .NET managed bindings.
+This document describes the comprehensive benchmarking suite comparing the native Rust `vello_cpu` API with the .NET managed bindings and SkiaSharp v3.x.
 
 ## Overview
 
-We have created identical benchmarks for both Rust and .NET implementations covering all major public API features:
+We have created identical benchmarks for Rust, Vello .NET, and SkiaSharp implementations covering all major public API features:
 
 - **Path Rendering** - Fill/stroke rectangles, simple paths, complex curved paths
 - **Gradients** - Linear and radial gradients with multiple color stops
@@ -14,9 +14,11 @@ We have created identical benchmarks for both Rust and .NET implementations cove
 - **Effects** - Blurred rounded rectangles
 - **Complex Scenes** - Multi-element rendering scenarios
 
-Each benchmark is run in two configurations:
+Each Vello benchmark is run in two configurations:
 1. **Single Thread** (`numThreads=0`) - Sequential execution
 2. **Multi Thread 8T** (`numThreads=8`) - Parallel execution with 8 worker threads
+
+SkiaSharp benchmarks use default SkiaSharp configuration (CPU rendering, single-threaded)
 
 ## Benchmark Locations
 
@@ -25,9 +27,12 @@ Each benchmark is run in two configurations:
 - **Framework**: Criterion (Rust standard benchmarking framework)
 - **Features**: HTML reports, statistical analysis, comparison mode
 
-### .NET Benchmarks
+### .NET Benchmarks (Vello + SkiaSharp)
 - **Location**: `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/Vello.Benchmarks/`
 - **Framework**: BenchmarkDotNet (industry-standard .NET benchmarking)
+- **Implementations**:
+  - `ApiBenchmarks.cs` - Vello .NET bindings (26 benchmarks)
+  - `SkiaSharpBenchmarks.cs` - SkiaSharp v3.116.1 (13 benchmarks)
 - **Features**: Memory diagnostics, statistical analysis, multiple runtime support
 
 ## Running the Benchmarks
@@ -64,8 +69,14 @@ cargo bench -- --sample-size 50
 ```bash
 cd /Users/wieslawsoltes/GitHub/SparseStrips/dotnet
 
-# Run all benchmarks
+# Run all benchmarks (Vello + SkiaSharp)
 dotnet run --project Vello.Benchmarks/Vello.Benchmarks.csproj -c Release
+
+# Run only Vello benchmarks
+dotnet run --project Vello.Benchmarks/Vello.Benchmarks.csproj -c Release -- --filter Vello.Benchmarks.ApiBenchmarks*
+
+# Run only SkiaSharp benchmarks
+dotnet run --project Vello.Benchmarks/Vello.Benchmarks.csproj -c Release -- --filter Vello.Benchmarks.SkiaSharpBenchmarks*
 
 # Run specific category
 dotnet run --project Vello.Benchmarks/Vello.Benchmarks.csproj -c Release -- --filter *FillRect*
@@ -144,25 +155,44 @@ dotnet run --project Vello.Benchmarks/Vello.Benchmarks.csproj -c Release -- --me
 
 ## Expected Performance Characteristics
 
-### Single-Threaded
+### Rust (Native vello_cpu)
 
-Rust should show marginally better performance due to:
+**Single-Threaded**:
 - Zero-cost abstractions
 - No GC overhead
 - Direct memory access
+- Expected: **Baseline performance** (fastest)
 
-.NET should be competitive due to:
-- Zero-copy Span<T> APIs
-- Blittable P/Invoke
+**Multi-Threaded (8T)**:
+- Rayon work-stealing scheduler
+- SIMD optimizations
+- Expected: **3-6x speedup** over single-threaded
+
+### Vello .NET (Managed Bindings)
+
+**Single-Threaded**:
+- Zero-copy Span<T> APIs (Phase 1 & 2)
+- Blittable P/Invoke (minimal overhead)
 - Modern JIT optimizations
+- Expected: **0-25% slower** than Rust
 
-### Multi-Threaded (8T)
+**Multi-Threaded (8T)**:
+- Native library handles threading
+- Same threading model as Rust
+- Expected: **3-6x speedup**, performance gap narrows
 
-Both should show significant speedup:
-- Rust: Using rayon work-stealing
-- .NET: Native library handles threading
+### SkiaSharp v3.x (Industry Standard)
 
-Performance gap should narrow as thread overhead dominates.
+**CPU Rendering** (default):
+- Mature, highly optimized codebase
+- Single-threaded CPU rasterization
+- Hardware-independent
+- Expected: **Competitive with Vello single-threaded**
+
+**Comparison Notes**:
+- SkiaSharp is GPU-capable but benchmarks use CPU mode
+- SkiaSharp has no direct multi-threading for CPU rendering
+- Different rendering algorithms may favor different workloads
 
 ## Memory Comparison
 
@@ -172,7 +202,7 @@ Performance gap should narrow as thread overhead dominates.
 - **Zero Allocations**: For typical operations
 - **Memory Safety**: Compile-time guarantees
 
-### .NET
+### Vello .NET
 
 - **Managed Heap**: GC-managed allocations
 - **Span<T> Optimizations**: Zero-copy for Phases 1 & 2
@@ -183,13 +213,32 @@ Performance gap should narrow as thread overhead dominates.
   - Path operations: Some managed wrapper allocations
   - Context/Pixmap: IDisposable pattern
 
+### SkiaSharp
+
+- **Managed Wrapper**: Similar to Vello .NET
+- **Native Library**: libSkiaSharp (C++)
+- **Expected Allocations**:
+  - SKSurface, SKCanvas: Per-benchmark allocation
+  - SKPaint, SKPath: Per-operation allocations
+  - More allocation overhead than Vello (no Span optimizations)
+
 ## Interpreting Results
 
 ### Performance Comparison
 
-**Rust faster by <20%**: Excellent parity, .NET bindings are high-quality
-**Rust faster by 20-50%**: Expected, managed overhead is reasonable
-**Rust faster by >50%**: Investigate .NET implementation for inefficiencies
+**Rust vs Vello .NET**:
+- **<20% difference**: Excellent parity, .NET bindings are high-quality
+- **20-50% difference**: Expected, managed overhead is reasonable
+- **>50% difference**: Investigate .NET implementation for inefficiencies
+
+**Vello vs SkiaSharp**:
+- Both are mature rendering engines with different strengths
+- SkiaSharp: More mature, broader feature set, GPU support
+- Vello CPU: Modern architecture, better multi-threading, specialized for CPU
+
+**Multi-threaded Advantage**:
+- Vello .NET 8T should significantly outperform SkiaSharp (single-threaded)
+- Expected 3-6x faster on multi-core systems
 
 ### Memory Comparison
 
@@ -333,9 +382,23 @@ fill_rect/multi_thread_8T time: [1.2345 ms 1.2456 ms 1.2578 ms]
 |   FillRect_MultiThread8T    | 1.287 ms | 0.012 ms | 0.011 ms |  0.30 |    - |     184 B |
 ```
 
+## Quick Comparison Table
+
+| Feature | Rust vello_cpu | Vello .NET | SkiaSharp v3.x |
+|---------|---------------|------------|----------------|
+| **Language** | Rust | C# (.NET 8) | C# (.NET 8) |
+| **Native Library** | vello_cpu (Rust) | vello_cpu (Rust via FFI) | libSkiaSharp (C++) |
+| **Multi-threading** | ✅ Yes (rayon) | ✅ Yes (via native) | ❌ No (CPU mode) |
+| **SIMD** | ✅ Auto-detect | ✅ Auto-detect | ✅ Yes |
+| **Memory Model** | Stack/Heap (Rust) | Managed + Native | Managed + Native |
+| **Span<T> APIs** | N/A (native) | ✅ Yes (Phase 1 & 2) | ❌ No |
+| **GPU Support** | ❌ No (CPU only) | ❌ No (CPU only) | ✅ Yes (not benchmarked) |
+| **Benchmarks** | 26 (13 groups × 2) | 26 (13 groups × 2) | 13 |
+| **Expected Perf** | Baseline (fastest) | 0-25% slower | Competitive single-thread |
+
 ## Summary
 
-This benchmarking suite provides comprehensive performance and memory comparison between Rust and .NET implementations, enabling:
+This benchmarking suite provides comprehensive performance and memory comparison between Rust, Vello .NET, and SkiaSharp implementations, enabling:
 
 - **Validation**: Ensures .NET bindings have acceptable performance
 - **Optimization**: Identifies performance bottlenecks
