@@ -1,0 +1,28 @@
+[package]
+name = "vello_cpu_ffi"
+version = "0.1.0"
+edition = "2021"
+description = "C FFI bindings for vello_cpu"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/wieslawsoltes/SparseStrips"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+vello_cpu = { path = "../extern/vello/sparse_strips/vello_cpu", features = ["std", "png", "multithreading"] }
+vello_common = { path = "../extern/vello/sparse_strips/vello_common" }
+skrifa = "0.24"
+
+[build-dependencies]
+cbindgen = "0.27"
+
+[features]
+default = ["png"]
+png = []
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = true

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>Vello</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Wieslaw Soltes</Authors>
+    <Description>.NET bindings for Vello Sparse Strips CPU renderer</Description>
+    <PackageLicenseExpression>Apache-2.0 OR MIT</PackageLicenseExpression>
+    <PackageTags>graphics;2d;rendering;vector;cpu</PackageTags>
+    <RepositoryUrl>https://github.com/wieslawsoltes/SparseStrips</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vello.Native\Vello.Native.csproj" />
+  </ItemGroup>
+
+  <!-- Include native libraries in NuGet package -->
+  <ItemGroup>
+    <None Include="..\runtimes\**\*.*">
+      <Pack>true</Pack>
+      <PackagePath>runtimes</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

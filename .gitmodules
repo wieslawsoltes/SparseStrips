@@ -1,0 +1,9 @@
+[submodule "extern/vello"]
+	path = extern/vello
+	url = https://github.com/wieslawsoltes/vello.git
+[submodule "extern/Avalonia"]
+	path = extern/Avalonia
+	url = https://github.com/wieslawsoltes/Avalonia.git
+[submodule "extern/SkiaSharp"]
+	path = extern/SkiaSharp
+	url = https://github.com/wieslawsoltes/SkiaSharp.git

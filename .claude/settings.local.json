@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.rs)",
+      "Bash(cargo check:*)",
+      "Bash(cargo build:*)",
+      "Bash(ls:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(chmod:*)",
+      "Bash(dotnet build:*)",
+      "Bash(/Users/wieslawsoltes/GitHub/SparseStrips/build.sh:*)",
+      "Bash(./build.sh)",
+      "Bash(dotnet run:*)",
+      "Bash(cargo doc:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(cargo expand:*)",
+      "Read(//Users/wieslawsoltes/.cargo/registry/src/**)",
+      "Bash(cargo tree:*)",
+      "WebSearch",
+      "Bash(dotnet test:*)",
+      "Bash(nm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

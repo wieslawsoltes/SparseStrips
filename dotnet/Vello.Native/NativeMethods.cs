@@ -1,0 +1,373 @@
+// Copyright 2025 Wieslaw Soltes
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace Vello.Native;
+
+internal static partial class NativeMethods
+{
+    private const string LibraryName = "vello_cpu_ffi";
+
+    /// <summary>
+    /// Module initializer to ensure native library is loaded before any P/Invoke calls.
+    /// </summary>
+    [ModuleInitializer]
+    internal static void Initialize()
+    {
+        NativeLibraryLoader.EnsureLoaded();
+    }
+
+    // Error codes
+    internal const int VELLO_OK = 0;
+    internal const int VELLO_ERROR_NULL_POINTER = -1;
+    internal const int VELLO_ERROR_INVALID_HANDLE = -2;
+    internal const int VELLO_ERROR_RENDER_FAILED = -3;
+    internal const int VELLO_ERROR_OUT_OF_MEMORY = -4;
+    internal const int VELLO_ERROR_INVALID_PARAMETER = -5;
+    internal const int VELLO_ERROR_PNG_DECODE = -6;
+    internal const int VELLO_ERROR_PNG_ENCODE = -7;
+
+    // Version and capabilities
+    [LibraryImport(LibraryName, EntryPoint = "vello_version")]
+    internal static partial nint Version();
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_simd_detect")]
+    internal static partial VelloSimdLevel SimdDetect();
+
+    // Error handling
+    [LibraryImport(LibraryName, EntryPoint = "vello_get_last_error")]
+    internal static partial nint GetLastError();
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_clear_last_error")]
+    internal static partial void ClearLastError();
+
+    // RenderContext
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_new")]
+    internal static partial nint RenderContext_New(ushort width, ushort height);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_new_with")]
+    internal static unsafe partial nint RenderContext_NewWith(
+        ushort width,
+        ushort height,
+        VelloRenderSettings* settings);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_free")]
+    internal static partial void RenderContext_Free(nint ctx);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_width")]
+    internal static partial ushort RenderContext_Width(nint ctx);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_height")]
+    internal static partial ushort RenderContext_Height(nint ctx);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_reset")]
+    internal static partial int RenderContext_Reset(nint ctx);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_paint_solid")]
+    internal static partial int RenderContext_SetPaintSolid(
+        nint ctx,
+        byte r,
+        byte g,
+        byte b,
+        byte a);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_paint_linear_gradient")]
+    internal static unsafe partial int RenderContext_SetPaintLinearGradient(
+        nint ctx,
+        double x0,
+        double y0,
+        double x1,
+        double y1,
+        VelloColorStop* stops,
+        nuint stopCount,
+        VelloExtend extend);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_paint_radial_gradient")]
+    internal static unsafe partial int RenderContext_SetPaintRadialGradient(
+        nint ctx,
+        double cx,
+        double cy,
+        double radius,
+        VelloColorStop* stops,
+        nuint stopCount,
+        VelloExtend extend);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_paint_sweep_gradient")]
+    internal static unsafe partial int RenderContext_SetPaintSweepGradient(
+        nint ctx,
+        double cx,
+        double cy,
+        float startAngle,
+        float endAngle,
+        VelloColorStop* stops,
+        nuint stopCount,
+        VelloExtend extend);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_transform")]
+    internal static unsafe partial int RenderContext_SetTransform(
+        nint ctx,
+        VelloAffine* transform);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_reset_transform")]
+    internal static partial int RenderContext_ResetTransform(nint ctx);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_get_transform")]
+    internal static unsafe partial int RenderContext_GetTransform(
+        nint ctx,
+        VelloAffine* outTransform);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_stroke")]
+    internal static unsafe partial int RenderContext_SetStroke(
+        nint ctx,
+        VelloStroke* stroke);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_fill_rule")]
+    internal static partial int RenderContext_SetFillRule(
+        nint ctx,
+        VelloFillRule fillRule);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_fill_rect")]
+    internal static unsafe partial int RenderContext_FillRect(
+        nint ctx,
+        VelloRect* rect);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_stroke_rect")]
+    internal static unsafe partial int RenderContext_StrokeRect(
+        nint ctx,
+        VelloRect* rect);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_fill_blurred_rounded_rect")]
+    internal static unsafe partial int RenderContext_FillBlurredRoundedRect(
+        nint ctx,
+        VelloRect* rect,
+        float radius,
+        float stdDev);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_fill_path")]
+    internal static partial int RenderContext_FillPath(nint ctx, nint path);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_stroke_path")]
+    internal static partial int RenderContext_StrokePath(nint ctx, nint path);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_push_blend_layer")]
+    internal static unsafe partial int RenderContext_PushBlendLayer(
+        nint ctx,
+        VelloBlendMode* blendMode);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_push_clip_layer")]
+    internal static partial int RenderContext_PushClipLayer(nint ctx, nint path);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_push_opacity_layer")]
+    internal static partial int RenderContext_PushOpacityLayer(nint ctx, float opacity);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_pop_layer")]
+    internal static partial int RenderContext_PopLayer(nint ctx);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_flush")]
+    internal static partial int RenderContext_Flush(nint ctx);
+
+    // Advanced/Optional methods
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_get_stroke")]
+    internal static unsafe partial int RenderContext_GetStroke(
+        nint ctx,
+        VelloStroke* outStroke);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_get_fill_rule")]
+    internal static partial VelloFillRule RenderContext_GetFillRule(nint ctx);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_paint_transform")]
+    internal static unsafe partial int RenderContext_SetPaintTransform(
+        nint ctx,
+        VelloAffine* transform);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_get_paint_transform")]
+    internal static unsafe partial int RenderContext_GetPaintTransform(
+        nint ctx,
+        VelloAffine* outTransform);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_reset_paint_transform")]
+    internal static partial int RenderContext_ResetPaintTransform(nint ctx);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_aliasing_threshold")]
+    internal static partial int RenderContext_SetAliasingThreshold(nint ctx, short threshold);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_push_layer")]
+    internal static unsafe partial int RenderContext_PushLayer(
+        nint ctx,
+        nint clipPath,
+        VelloBlendMode* blendMode,
+        float opacity,
+        nint mask);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_get_render_settings")]
+    internal static unsafe partial int RenderContext_GetRenderSettings(
+        nint ctx,
+        VelloRenderSettings* outSettings);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_render_to_buffer")]
+    internal static unsafe partial int RenderContext_RenderToBuffer(
+        nint ctx,
+        byte* buffer,
+        nuint bufferLen,
+        ushort width,
+        ushort height,
+        VelloRenderMode renderMode);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_render_to_pixmap")]
+    internal static partial int RenderContext_RenderToPixmap(nint ctx, nint pixmap);
+
+    // Pixmap
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_new")]
+    internal static partial nint Pixmap_New(ushort width, ushort height);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_free")]
+    internal static partial void Pixmap_Free(nint pixmap);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_width")]
+    internal static partial ushort Pixmap_Width(nint pixmap);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_height")]
+    internal static partial ushort Pixmap_Height(nint pixmap);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_data")]
+    internal static unsafe partial int Pixmap_Data(
+        nint pixmap,
+        nint* outPtr,
+        nuint* outLen);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_data_mut")]
+    internal static unsafe partial int Pixmap_DataMut(
+        nint pixmap,
+        nint* outPtr,
+        nuint* outLen);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_resize")]
+    internal static partial int Pixmap_Resize(
+        nint pixmap,
+        ushort width,
+        ushort height);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_from_png")]
+    internal static unsafe partial nint Pixmap_FromPng(byte* data, nuint len);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_to_png")]
+    internal static unsafe partial int Pixmap_ToPng(
+        nint pixmap,
+        byte** outData,
+        nuint* outLen);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_png_data_free")]
+    internal static unsafe partial void PngDataFree(byte* data, nuint len);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_sample")]
+    internal static unsafe partial int Pixmap_Sample(
+        nint pixmap,
+        ushort x,
+        ushort y,
+        VelloPremulRgba8* outPixel);
+
+    // BezPath
+    [LibraryImport(LibraryName, EntryPoint = "vello_bezpath_new")]
+    internal static partial nint BezPath_New();
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_bezpath_free")]
+    internal static partial void BezPath_Free(nint path);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_bezpath_move_to")]
+    internal static partial int BezPath_MoveTo(nint path, double x, double y);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_bezpath_line_to")]
+    internal static partial int BezPath_LineTo(nint path, double x, double y);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_bezpath_quad_to")]
+    internal static partial int BezPath_QuadTo(
+        nint path,
+        double x1,
+        double y1,
+        double x2,
+        double y2);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_bezpath_curve_to")]
+    internal static partial int BezPath_CurveTo(
+        nint path,
+        double x1,
+        double y1,
+        double x2,
+        double y2,
+        double x3,
+        double y3);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_bezpath_close")]
+    internal static partial int BezPath_Close(nint path);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_bezpath_clear")]
+    internal static partial int BezPath_Clear(nint path);
+
+    // Text Rendering
+    [LibraryImport(LibraryName, EntryPoint = "vello_font_data_new")]
+    internal static unsafe partial nint FontData_New(byte* data, nuint len, uint index);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_font_data_free")]
+    internal static partial void FontData_Free(nint font);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_fill_glyphs")]
+    internal static unsafe partial int RenderContext_FillGlyphs(
+        nint ctx,
+        nint font,
+        float fontSize,
+        VelloGlyph* glyphs,
+        nuint glyphCount);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_stroke_glyphs")]
+    internal static unsafe partial int RenderContext_StrokeGlyphs(
+        nint ctx,
+        nint font,
+        float fontSize,
+        VelloGlyph* glyphs,
+        nuint glyphCount);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_font_data_text_to_glyphs")]
+    internal static unsafe partial int FontData_TextToGlyphs(
+        nint font,
+        byte* text,
+        VelloGlyph* outGlyphs,
+        nuint maxGlyphs,
+        nuint* outCount);
+
+    // Mask
+    [LibraryImport(LibraryName, EntryPoint = "vello_mask_new_alpha")]
+    internal static partial nint Mask_NewAlpha(nint pixmap);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_mask_new_luminance")]
+    internal static partial nint Mask_NewLuminance(nint pixmap);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_mask_free")]
+    internal static partial void Mask_Free(nint mask);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_mask_get_width")]
+    internal static partial ushort Mask_GetWidth(nint mask);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_mask_get_height")]
+    internal static partial ushort Mask_GetHeight(nint mask);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_push_mask_layer")]
+    internal static partial int RenderContext_PushMaskLayer(nint ctx, nint mask);
+
+    // Image
+    [LibraryImport(LibraryName, EntryPoint = "vello_image_new_from_pixmap")]
+    internal static partial nint Image_NewFromPixmap(
+        nint pixmap,
+        VelloExtend xExtend,
+        VelloExtend yExtend,
+        VelloImageQuality quality,
+        float alpha);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_image_free")]
+    internal static partial void Image_Free(nint image);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_paint_image")]
+    internal static partial int RenderContext_SetPaintImage(nint ctx, nint image);
+}

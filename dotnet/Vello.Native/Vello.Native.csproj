@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- Define native library paths -->
+  <PropertyGroup>
+    <VelloFfiRoot>$(MSBuildProjectDirectory)/../../vello_cpu_ffi</VelloFfiRoot>
+    <VelloFfiRelease>$(VelloFfiRoot)/target/release</VelloFfiRelease>
+    <VelloFfiDebug>$(VelloFfiRoot)/target/debug</VelloFfiDebug>
+  </PropertyGroup>
+
+  <!-- Determine which native library to use (release first, then debug) -->
+  <ItemGroup>
+    <!-- Windows -->
+    <Content Include="$(VelloFfiRelease)/vello_cpu_ffi.dll"
+             Condition="Exists('$(VelloFfiRelease)/vello_cpu_ffi.dll')"
+             Link="runtimes/win-x64/native/vello_cpu_ffi.dll"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+    <Content Include="$(VelloFfiDebug)/vello_cpu_ffi.dll"
+             Condition="!Exists('$(VelloFfiRelease)/vello_cpu_ffi.dll') And Exists('$(VelloFfiDebug)/vello_cpu_ffi.dll')"
+             Link="runtimes/win-x64/native/vello_cpu_ffi.dll"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+
+    <!-- macOS ARM64 -->
+    <Content Include="$(VelloFfiRelease)/libvello_cpu_ffi.dylib"
+             Condition="Exists('$(VelloFfiRelease)/libvello_cpu_ffi.dylib')"
+             Link="runtimes/osx-arm64/native/libvello_cpu_ffi.dylib"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+    <Content Include="$(VelloFfiDebug)/libvello_cpu_ffi.dylib"
+             Condition="!Exists('$(VelloFfiRelease)/libvello_cpu_ffi.dylib') And Exists('$(VelloFfiDebug)/libvello_cpu_ffi.dylib')"
+             Link="runtimes/osx-arm64/native/libvello_cpu_ffi.dylib"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+
+    <!-- macOS x64 -->
+    <Content Include="$(VelloFfiRelease)/libvello_cpu_ffi.dylib"
+             Condition="Exists('$(VelloFfiRelease)/libvello_cpu_ffi.dylib')"
+             Link="runtimes/osx-x64/native/libvello_cpu_ffi.dylib"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+    <Content Include="$(VelloFfiDebug)/libvello_cpu_ffi.dylib"
+             Condition="!Exists('$(VelloFfiRelease)/libvello_cpu_ffi.dylib') And Exists('$(VelloFfiDebug)/libvello_cpu_ffi.dylib')"
+             Link="runtimes/osx-x64/native/libvello_cpu_ffi.dylib"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+
+    <!-- Linux x64 -->
+    <Content Include="$(VelloFfiRelease)/libvello_cpu_ffi.so"
+             Condition="Exists('$(VelloFfiRelease)/libvello_cpu_ffi.so')"
+             Link="runtimes/linux-x64/native/libvello_cpu_ffi.so"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+    <Content Include="$(VelloFfiDebug)/libvello_cpu_ffi.so"
+             Condition="!Exists('$(VelloFfiRelease)/libvello_cpu_ffi.so') And Exists('$(VelloFfiDebug)/libvello_cpu_ffi.so')"
+             Link="runtimes/linux-x64/native/libvello_cpu_ffi.so"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+
+    <!-- Linux ARM64 -->
+    <Content Include="$(VelloFfiRelease)/libvello_cpu_ffi.so"
+             Condition="Exists('$(VelloFfiRelease)/libvello_cpu_ffi.so')"
+             Link="runtimes/linux-arm64/native/libvello_cpu_ffi.so"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+    <Content Include="$(VelloFfiDebug)/libvello_cpu_ffi.so"
+             Condition="!Exists('$(VelloFfiRelease)/libvello_cpu_ffi.so') And Exists('$(VelloFfiDebug)/libvello_cpu_ffi.so')"
+             Link="runtimes/linux-arm64/native/libvello_cpu_ffi.so"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+  </ItemGroup>
+
+</Project>
