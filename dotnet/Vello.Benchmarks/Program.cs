@@ -4,4 +4,6 @@
 using BenchmarkDotNet.Running;
 using Vello.Benchmarks;
 
+// Run both Vello and SkiaSharp benchmarks
 BenchmarkRunner.Run<ApiBenchmarks>();
+BenchmarkRunner.Run<SkiaSharpBenchmarks>();
