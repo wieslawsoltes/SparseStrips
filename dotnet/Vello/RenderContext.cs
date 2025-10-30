@@ -67,17 +67,34 @@ public sealed class RenderContext : IDisposable
                 color.A));
     }
 
+    /// <summary>
+    /// Sets the paint to a linear gradient. Zero-allocation for gradients with ≤32 stops.
+    /// </summary>
+    /// <param name="x0">X coordinate of gradient start point</param>
+    /// <param name="y0">Y coordinate of gradient start point</param>
+    /// <param name="x1">X coordinate of gradient end point</param>
+    /// <param name="y1">Y coordinate of gradient end point</param>
+    /// <param name="stops">Color stops defining the gradient (minimum 2 required)</param>
+    /// <param name="extend">How to extend the gradient beyond its bounds</param>
     public unsafe void SetPaintLinearGradient(
         double x0, double y0,
         double x1, double y1,
-        ColorStop[] stops,
+        ReadOnlySpan<ColorStop> stops,
         GradientExtend extend = GradientExtend.Pad)
     {
-        ArgumentNullException.ThrowIfNull(stops);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (stops.Length < 2)
             throw new ArgumentException("Gradient must have at least 2 color stops", nameof(stops));
 
-        var nativeStops = new VelloColorStop[stops.Length];
+        // Use stack allocation for typical gradients (≤32 stops = 512 bytes)
+        // Heap allocate for large gradients (>32 stops)
+        const int StackAllocThreshold = 32;
+        Span<VelloColorStop> nativeStops = stops.Length <= StackAllocThreshold
+            ? stackalloc VelloColorStop[stops.Length]
+            : new VelloColorStop[stops.Length];
+
+        // Convert to native format
         for (int i = 0; i < stops.Length; i++)
         {
             nativeStops[i] = new VelloColorStop
@@ -98,17 +115,43 @@ public sealed class RenderContext : IDisposable
         }
     }
 
+    /// <summary>
+    /// Sets the paint to a linear gradient (array overload).
+    /// For zero-allocation, use the ReadOnlySpan&lt;ColorStop&gt; overload.
+    /// </summary>
+    public void SetPaintLinearGradient(
+        double x0, double y0,
+        double x1, double y1,
+        ColorStop[] stops,
+        GradientExtend extend = GradientExtend.Pad)
+        => SetPaintLinearGradient(x0, y0, x1, y1, stops.AsSpan(), extend);
+
+    /// <summary>
+    /// Sets the paint to a radial gradient. Zero-allocation for gradients with ≤32 stops.
+    /// </summary>
+    /// <param name="cx">X coordinate of gradient center</param>
+    /// <param name="cy">Y coordinate of gradient center</param>
+    /// <param name="radius">Radius of the gradient</param>
+    /// <param name="stops">Color stops defining the gradient (minimum 2 required)</param>
+    /// <param name="extend">How to extend the gradient beyond its bounds</param>
     public unsafe void SetPaintRadialGradient(
         double cx, double cy,
         double radius,
-        ColorStop[] stops,
+        ReadOnlySpan<ColorStop> stops,
         GradientExtend extend = GradientExtend.Pad)
     {
-        ArgumentNullException.ThrowIfNull(stops);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (stops.Length < 2)
             throw new ArgumentException("Gradient must have at least 2 color stops", nameof(stops));
 
-        var nativeStops = new VelloColorStop[stops.Length];
+        // Use stack allocation for typical gradients (≤32 stops = 512 bytes)
+        const int StackAllocThreshold = 32;
+        Span<VelloColorStop> nativeStops = stops.Length <= StackAllocThreshold
+            ? stackalloc VelloColorStop[stops.Length]
+            : new VelloColorStop[stops.Length];
+
+        // Convert to native format
         for (int i = 0; i < stops.Length; i++)
         {
             nativeStops[i] = new VelloColorStop
@@ -129,17 +172,44 @@ public sealed class RenderContext : IDisposable
         }
     }
 
+    /// <summary>
+    /// Sets the paint to a radial gradient (array overload).
+    /// For zero-allocation, use the ReadOnlySpan&lt;ColorStop&gt; overload.
+    /// </summary>
+    public void SetPaintRadialGradient(
+        double cx, double cy,
+        double radius,
+        ColorStop[] stops,
+        GradientExtend extend = GradientExtend.Pad)
+        => SetPaintRadialGradient(cx, cy, radius, stops.AsSpan(), extend);
+
+    /// <summary>
+    /// Sets the paint to a sweep (angular) gradient. Zero-allocation for gradients with ≤32 stops.
+    /// </summary>
+    /// <param name="cx">X coordinate of gradient center</param>
+    /// <param name="cy">Y coordinate of gradient center</param>
+    /// <param name="startAngle">Starting angle in radians</param>
+    /// <param name="endAngle">Ending angle in radians</param>
+    /// <param name="stops">Color stops defining the gradient (minimum 2 required)</param>
+    /// <param name="extend">How to extend the gradient beyond its bounds</param>
     public unsafe void SetPaintSweepGradient(
         double cx, double cy,
         float startAngle, float endAngle,
-        ColorStop[] stops,
+        ReadOnlySpan<ColorStop> stops,
         GradientExtend extend = GradientExtend.Pad)
     {
-        ArgumentNullException.ThrowIfNull(stops);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (stops.Length < 2)
             throw new ArgumentException("Gradient must have at least 2 color stops", nameof(stops));
 
-        var nativeStops = new VelloColorStop[stops.Length];
+        // Use stack allocation for typical gradients (≤32 stops = 512 bytes)
+        const int StackAllocThreshold = 32;
+        Span<VelloColorStop> nativeStops = stops.Length <= StackAllocThreshold
+            ? stackalloc VelloColorStop[stops.Length]
+            : new VelloColorStop[stops.Length];
+
+        // Convert to native format
         for (int i = 0; i < stops.Length; i++)
         {
             nativeStops[i] = new VelloColorStop
@@ -159,6 +229,17 @@ public sealed class RenderContext : IDisposable
                     Handle, cx, cy, startAngle, endAngle, pStops, (nuint)stops.Length, (VelloExtend)extend));
         }
     }
+
+    /// <summary>
+    /// Sets the paint to a sweep (angular) gradient (array overload).
+    /// For zero-allocation, use the ReadOnlySpan&lt;ColorStop&gt; overload.
+    /// </summary>
+    public void SetPaintSweepGradient(
+        double cx, double cy,
+        float startAngle, float endAngle,
+        ColorStop[] stops,
+        GradientExtend extend = GradientExtend.Pad)
+        => SetPaintSweepGradient(cx, cy, startAngle, endAngle, stops.AsSpan(), extend);
 
     public unsafe void PushBlendLayer(BlendMode blendMode)
     {
@@ -290,13 +371,27 @@ public sealed class RenderContext : IDisposable
             NativeMethods.RenderContext_StrokePath(Handle, path.Handle));
     }
 
-    public unsafe void FillGlyphs(FontData font, float fontSize, Glyph[] glyphs)
+    /// <summary>
+    /// Fills glyphs at specified positions. Zero-allocation for glyph runs with ≤256 glyphs.
+    /// </summary>
+    /// <param name="font">The font data containing the glyph definitions</param>
+    /// <param name="fontSize">The size of the font in points</param>
+    /// <param name="glyphs">Span of glyphs with their positions</param>
+    public unsafe void FillGlyphs(FontData font, float fontSize, ReadOnlySpan<Glyph> glyphs)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(font);
-        ArgumentNullException.ThrowIfNull(glyphs);
 
-        // Convert to native glyphs
-        var nativeGlyphs = new VelloGlyph[glyphs.Length];
+        if (glyphs.IsEmpty)
+            return;
+
+        // Use stack allocation for typical text rendering (≤256 glyphs = 3KB)
+        const int StackAllocThreshold = 256;
+        Span<VelloGlyph> nativeGlyphs = glyphs.Length <= StackAllocThreshold
+            ? stackalloc VelloGlyph[glyphs.Length]
+            : new VelloGlyph[glyphs.Length];
+
+        // Convert to native format
         for (int i = 0; i < glyphs.Length; i++)
         {
             nativeGlyphs[i] = new VelloGlyph
@@ -319,13 +414,31 @@ public sealed class RenderContext : IDisposable
         }
     }
 
-    public unsafe void StrokeGlyphs(FontData font, float fontSize, Glyph[] glyphs)
-    {
-        ArgumentNullException.ThrowIfNull(font);
-        ArgumentNullException.ThrowIfNull(glyphs);
+    // Array overload for backward compatibility
+    public void FillGlyphs(FontData font, float fontSize, Glyph[] glyphs)
+        => FillGlyphs(font, fontSize, glyphs.AsSpan());
 
-        // Convert to native glyphs
-        var nativeGlyphs = new VelloGlyph[glyphs.Length];
+    /// <summary>
+    /// Strokes glyphs at specified positions. Zero-allocation for glyph runs with ≤256 glyphs.
+    /// </summary>
+    /// <param name="font">The font data containing the glyph definitions</param>
+    /// <param name="fontSize">The size of the font in points</param>
+    /// <param name="glyphs">Span of glyphs with their positions</param>
+    public unsafe void StrokeGlyphs(FontData font, float fontSize, ReadOnlySpan<Glyph> glyphs)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(font);
+
+        if (glyphs.IsEmpty)
+            return;
+
+        // Use stack allocation for typical text rendering (≤256 glyphs = 3KB)
+        const int StackAllocThreshold = 256;
+        Span<VelloGlyph> nativeGlyphs = glyphs.Length <= StackAllocThreshold
+            ? stackalloc VelloGlyph[glyphs.Length]
+            : new VelloGlyph[glyphs.Length];
+
+        // Convert to native format
         for (int i = 0; i < glyphs.Length; i++)
         {
             nativeGlyphs[i] = new VelloGlyph
@@ -348,36 +461,80 @@ public sealed class RenderContext : IDisposable
         }
     }
 
+    // Array overload for backward compatibility
+    public void StrokeGlyphs(FontData font, float fontSize, Glyph[] glyphs)
+        => StrokeGlyphs(font, fontSize, glyphs.AsSpan());
+
+    /// <summary>
+    /// Fills text at specified position. Zero-allocation for text with ≤256 characters.
+    /// </summary>
+    /// <param name="font">The font data to use</param>
+    /// <param name="fontSize">The size of the font in points</param>
+    /// <param name="text">The text to render</param>
+    /// <param name="x">X coordinate of the text position</param>
+    /// <param name="y">Y coordinate of the text position</param>
     public void FillText(FontData font, float fontSize, string text, double x, double y)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(font);
         ArgumentNullException.ThrowIfNull(text);
 
-        var glyphs = font.TextToGlyphs(text);
+        if (text.Length == 0)
+            return;
+
+        // Use stack allocation for typical text (≤256 chars = 3KB)
+        const int StackAllocThreshold = 256;
+        Span<Glyph> glyphs = text.Length <= StackAllocThreshold
+            ? stackalloc Glyph[text.Length]
+            : new Glyph[text.Length];
+
+        // Convert text to glyphs using zero-allocation Span API
+        int glyphCount = font.TextToGlyphs(text, glyphs);
 
         // Offset all glyphs by the provided position
-        for (int i = 0; i < glyphs.Length; i++)
+        for (int i = 0; i < glyphCount; i++)
         {
             glyphs[i] = new Glyph(glyphs[i].Id, glyphs[i].X + (float)x, glyphs[i].Y + (float)y);
         }
 
-        FillGlyphs(font, fontSize, glyphs);
+        // Render using zero-allocation Span API
+        FillGlyphs(font, fontSize, glyphs.Slice(0, glyphCount));
     }
 
+    /// <summary>
+    /// Strokes text at specified position. Zero-allocation for text with ≤256 characters.
+    /// </summary>
+    /// <param name="font">The font data to use</param>
+    /// <param name="fontSize">The size of the font in points</param>
+    /// <param name="text">The text to render</param>
+    /// <param name="x">X coordinate of the text position</param>
+    /// <param name="y">Y coordinate of the text position</param>
     public void StrokeText(FontData font, float fontSize, string text, double x, double y)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(font);
         ArgumentNullException.ThrowIfNull(text);
 
-        var glyphs = font.TextToGlyphs(text);
+        if (text.Length == 0)
+            return;
+
+        // Use stack allocation for typical text (≤256 chars = 3KB)
+        const int StackAllocThreshold = 256;
+        Span<Glyph> glyphs = text.Length <= StackAllocThreshold
+            ? stackalloc Glyph[text.Length]
+            : new Glyph[text.Length];
+
+        // Convert text to glyphs using zero-allocation Span API
+        int glyphCount = font.TextToGlyphs(text, glyphs);
 
         // Offset all glyphs by the provided position
-        for (int i = 0; i < glyphs.Length; i++)
+        for (int i = 0; i < glyphCount; i++)
         {
             glyphs[i] = new Glyph(glyphs[i].Id, glyphs[i].X + (float)x, glyphs[i].Y + (float)y);
         }
 
-        StrokeGlyphs(font, fontSize, glyphs);
+        // Render using zero-allocation Span API
+        StrokeGlyphs(font, fontSize, glyphs.Slice(0, glyphCount));
     }
 
     public void Flush()

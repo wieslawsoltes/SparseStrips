@@ -66,7 +66,42 @@ public sealed class Pixmap : IDisposable
     }
 
     /// <summary>
+    /// Get pixel data as bytes (zero-copy access, reinterpreted view).
+    /// The span is only valid while the Pixmap is alive.
+    /// Each pixel is 4 bytes: R, G, B, A (premultiplied).
+    /// </summary>
+    public unsafe ReadOnlySpan<byte> GetBytes()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        nint ptr;
+        nuint len;
+        VelloException.ThrowIfError(
+            NativeMethods.Pixmap_Data(_handle, &ptr, &len));
+
+        // Each PremulRgba8 is 4 bytes, so multiply length by 4
+        return new ReadOnlySpan<byte>(ptr.ToPointer(), (int)len * 4);
+    }
+
+    /// <summary>
+    /// Copy pixel data as bytes to the destination span.
+    /// Each pixel is 4 bytes: R, G, B, A (premultiplied).
+    /// </summary>
+    /// <param name="destination">Destination span (must be at least Width * Height * 4 bytes)</param>
+    public void CopyBytesTo(Span<byte> destination)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        var sourceBytes = GetBytes();
+        if (destination.Length < sourceBytes.Length)
+            throw new ArgumentException($"Destination span too small. Required: {sourceBytes.Length}, Got: {destination.Length}", nameof(destination));
+
+        sourceBytes.CopyTo(destination);
+    }
+
+    /// <summary>
     /// Copy pixel data to a byte array.
+    /// Note: Consider using GetBytes() for zero-copy access or CopyBytesTo() for better performance.
     /// </summary>
     public byte[] ToByteArray()
     {
@@ -85,12 +120,13 @@ public sealed class Pixmap : IDisposable
     }
 
     /// <summary>
-    /// Load a pixmap from PNG data.
+    /// Load a pixmap from PNG data (zero-allocation for ReadOnlySpan sources).
     /// </summary>
-    public static unsafe Pixmap FromPng(byte[] pngData)
+    /// <param name="pngData">PNG-encoded image data</param>
+    /// <returns>A new Pixmap containing the decoded image</returns>
+    public static unsafe Pixmap FromPng(ReadOnlySpan<byte> pngData)
     {
-        ArgumentNullException.ThrowIfNull(pngData);
-        if (pngData.Length == 0)
+        if (pngData.IsEmpty)
             throw new ArgumentException("PNG data cannot be empty", nameof(pngData));
 
         fixed (byte* dataPtr = pngData)
@@ -104,6 +140,16 @@ public sealed class Pixmap : IDisposable
     }
 
     /// <summary>
+    /// Load a pixmap from PNG data (array overload).
+    /// For zero-allocation, use the ReadOnlySpan&lt;byte&gt; overload.
+    /// </summary>
+    public static Pixmap FromPng(byte[] pngData)
+    {
+        ArgumentNullException.ThrowIfNull(pngData);
+        return FromPng(pngData.AsSpan());
+    }
+
+    /// <summary>
     /// Load a pixmap from a PNG file.
     /// </summary>
     public static Pixmap FromPngFile(string path)
@@ -114,7 +160,67 @@ public sealed class Pixmap : IDisposable
     }
 
     /// <summary>
+    /// Tries to write PNG-encoded data to the destination span.
+    /// </summary>
+    /// <param name="destination">Destination span for PNG data</param>
+    /// <param name="bytesWritten">Number of bytes written if successful</param>
+    /// <returns>True if successful, false if destination too small</returns>
+    public unsafe bool TryToPng(Span<byte> destination, out int bytesWritten)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        byte* dataPtr;
+        nuint len;
+
+        VelloException.ThrowIfError(
+            NativeMethods.Pixmap_ToPng(_handle, &dataPtr, &len));
+
+        try
+        {
+            if (len > (nuint)destination.Length)
+            {
+                bytesWritten = 0;
+                return false;
+            }
+
+            new ReadOnlySpan<byte>(dataPtr, (int)len).CopyTo(destination);
+            bytesWritten = (int)len;
+            return true;
+        }
+        finally
+        {
+            NativeMethods.PngDataFree(dataPtr, len);
+        }
+    }
+
+    /// <summary>
+    /// Get the size needed for PNG encoding.
+    /// Useful for allocating the right buffer size before calling TryToPng.
+    /// </summary>
+    /// <returns>Number of bytes needed for PNG encoding</returns>
+    public unsafe int GetPngSize()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        byte* dataPtr;
+        nuint len;
+
+        VelloException.ThrowIfError(
+            NativeMethods.Pixmap_ToPng(_handle, &dataPtr, &len));
+
+        try
+        {
+            return (int)len;
+        }
+        finally
+        {
+            NativeMethods.PngDataFree(dataPtr, len);
+        }
+    }
+
+    /// <summary>
     /// Save pixmap as PNG data.
+    /// Note: Consider using TryToPng() for zero-allocation scenarios with pre-allocated buffers.
     /// </summary>
     public unsafe byte[] ToPng()
     {

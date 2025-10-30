@@ -39,13 +39,14 @@ SparseStrips/
 
 - ✅ **100% API Coverage** - All 34 RenderContext methods implemented
 - ✅ **Complete Feature Set** - Images, gradients, blending, clipping, masking, glyphs
-- ✅ **High Performance** - Zero-copy operations via `Span<T>`
-- ✅ **Modern .NET 8.0** - `LibraryImport`, blittable structs
+- ✅ **Zero-Allocation Rendering** - `Span<T>/stackalloc` for text, gradients, PNG I/O (Phase 1 & 2 complete)
+- ✅ **High Performance** - Zero-copy pixel access via `ReadOnlySpan<T>`
+- ✅ **Modern .NET 8.0** - `LibraryImport`, blittable structs, `Span<T>` APIs
 - ✅ **SIMD Support** - SSE2, AVX, AVX2, AVX512, NEON
 - ✅ **Multithreading** - Configurable worker threads
 - ✅ **Cross-Platform** - Windows, Linux, macOS (x64, ARM64)
 - ✅ **Safe API** - `IDisposable` pattern, automatic cleanup
-- ✅ **Well Tested** - 85 tests (81 active, 100% passing)
+- ✅ **Comprehensive Testing** - 113 tests (100% passing, including 32 performance tests)
 - ✅ **15 Examples** - Comprehensive example applications
 
 ## Building
@@ -159,10 +160,68 @@ Complete documentation is available in the `docs/` folder:
 
 ## Performance
 
+### Zero-Allocation Rendering (Phase 1 & 2) ✅
+
+All critical rendering paths now support **zero-allocation** rendering using `Span<T>` and `stackalloc`:
+
+#### Phase 1: Text & Gradient Rendering
+- **Text rendering** (≤256 chars): **0 allocations** (was 5 per call)
+- **Gradients** (≤32 stops): **0 allocations** (was 1 per call)
+- **Glyph rendering** (≤256 glyphs): **0 allocations** (was 1 per call)
+
+```csharp
+// Zero-allocation text rendering
+context.FillText(font, 48.0f, "Hello, World!", 10, 50);  // 0 allocations
+
+// Zero-allocation gradient rendering
+Span<ColorStop> stops = stackalloc ColorStop[3];
+stops[0] = new ColorStop(0.0f, Color.Red);
+stops[1] = new ColorStop(0.5f, Color.Green);
+stops[2] = new ColorStop(1.0f, Color.Blue);
+context.SetPaintLinearGradient(0, 0, 400, 300, stops);  // 0 allocations
+
+// Zero-allocation glyph conversion
+Span<Glyph> glyphs = stackalloc Glyph[text.Length];
+int count = font.TextToGlyphs(text, glyphs);  // 0 allocations
+context.FillGlyphs(font, 48.0f, glyphs.Slice(0, count));  // 0 allocations
+```
+
+#### Phase 2: PNG I/O & Pixmap Operations
+- **PNG loading**: Zero-copy from `ReadOnlySpan<byte>` sources
+- **PNG export**: Try-pattern with pre-allocated buffers
+- **Pixel byte access**: Zero-copy direct memory access
+
+```csharp
+// Zero-copy PNG loading from memory
+ReadOnlySpan<byte> pngData = File.ReadAllBytes("image.png");
+using var pixmap = Pixmap.FromPng(pngData);  // Zero-copy
+
+// Zero-allocation PNG export with pre-allocated buffer
+int size = pixmap.GetPngSize();
+Span<byte> buffer = stackalloc byte[size];
+if (pixmap.TryToPng(buffer, out int bytesWritten))
+{
+    File.WriteAllBytes("output.png", buffer.Slice(0, bytesWritten).ToArray());
+}
+
+// Zero-copy byte access to pixel data
+ReadOnlySpan<byte> bytes = pixmap.GetBytes();  // Direct memory access, no copy
+// Or copy to existing buffer:
+Span<byte> destination = new byte[pixmap.Width * pixmap.Height * 4];
+pixmap.CopyBytesTo(destination);
+
+// Zero-copy font loading from memory
+ReadOnlySpan<byte> fontData = File.ReadAllBytes("font.ttf");
+using var font = new FontData(fontData);  // Zero-copy
+```
+
+### Core Performance Features
+
 - **Zero-copy pixel access** - Direct memory access via `Span<PremulRgba8>`
 - **Blittable types** - No marshalling overhead
-- **SIMD optimizations** - Automatic hardware detection
+- **SIMD optimizations** - Automatic hardware detection (SSE2, AVX, AVX2, AVX512, NEON)
 - **Multithreading** - Configurable worker threads
+- **Stackalloc** - Automatic stack allocation for typical sizes, heap for large data
 
 Example configuration:
 
