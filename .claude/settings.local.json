@@ -21,7 +21,12 @@
       "WebSearch",
       "Bash(dotnet test:*)",
       "Bash(nm:*)",
-      "Bash(dotnet add:*)"
+      "Bash(dotnet add:*)",
+      "Bash(cargo bench:*)",
+      "Bash(tee:*)",
+      "Read(//private/tmp/**)",
+      "Bash(pkill:*)",
+      "Bash(dotnet:*)"
     ],
     "deny": [],
     "ask": []
