@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Samples", "Vello.Samp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Tests", "Vello.Tests\Vello.Tests.csproj", "{EFF09511-AC2E-449E-BB19-9ADF606E73D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Benchmarks", "Vello.Benchmarks\Vello.Benchmarks.csproj", "{7E92D419-831E-459C-BE7C-BB889B14FB0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{EFF09511-AC2E-449E-BB19-9ADF606E73D6}.Release|x64.Build.0 = Release|Any CPU
 		{EFF09511-AC2E-449E-BB19-9ADF606E73D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{EFF09511-AC2E-449E-BB19-9ADF606E73D6}.Release|x86.Build.0 = Release|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Debug|x64.Build.0 = Debug|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Debug|x86.Build.0 = Debug|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Release|x64.ActiveCfg = Release|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Release|x64.Build.0 = Release|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Release|x86.ActiveCfg = Release|Any CPU
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

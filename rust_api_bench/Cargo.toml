@@ -1,0 +1,17 @@
+[package]
+name = "rust_api_bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+vello_cpu = { path = "../extern/vello/sparse_strips/vello_cpu", features = ["std", "png", "text", "multithreading"] }
+vello_common = { path = "../extern/vello/sparse_strips/vello_common" }
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "api_benchmark"
+harness = false
