@@ -49,11 +49,10 @@ fn bench_fill_rect(c: &mut Criterion) {
     let rect = Rect::from_points((100.0, 100.0), (500.0, 400.0));
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
+
             ctx.set_paint(css::MAGENTA);
             ctx.fill_rect(black_box(&rect));
             ctx.flush();
@@ -62,11 +61,10 @@ fn bench_fill_rect(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
+
             ctx.set_paint(css::MAGENTA);
             ctx.fill_rect(black_box(&rect));
             ctx.flush();
@@ -91,11 +89,10 @@ fn bench_stroke_rect(c: &mut Criterion) {
     };
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
+
             ctx.set_paint(css::BLUE);
             ctx.set_stroke(stroke.clone());
             ctx.stroke_rect(black_box(&rect));
@@ -105,11 +102,10 @@ fn bench_stroke_rect(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
+
             ctx.set_paint(css::BLUE);
             ctx.set_stroke(stroke.clone());
             ctx.stroke_rect(black_box(&rect));
@@ -133,11 +129,10 @@ fn bench_fill_path_simple(c: &mut Criterion) {
     path.close_path();
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
+
             ctx.set_paint(css::RED);
             ctx.fill_path(black_box(&path));
             ctx.flush();
@@ -146,11 +141,10 @@ fn bench_fill_path_simple(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
+
             ctx.set_paint(css::RED);
             ctx.fill_path(black_box(&path));
             ctx.flush();
@@ -174,11 +168,10 @@ fn bench_fill_path_complex(c: &mut Criterion) {
     path.close_path();
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
+
             ctx.set_paint(css::GREEN);
             ctx.fill_path(black_box(&path));
             ctx.flush();
@@ -187,11 +180,10 @@ fn bench_fill_path_complex(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
+
             ctx.set_paint(css::GREEN);
             ctx.fill_path(black_box(&path));
             ctx.flush();
@@ -221,11 +213,9 @@ fn bench_stroke_path_complex(c: &mut Criterion) {
     };
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_paint(css::PURPLE);
             ctx.set_stroke(stroke.clone());
             ctx.stroke_path(black_box(&path));
@@ -235,11 +225,9 @@ fn bench_stroke_path_complex(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_paint(css::PURPLE);
             ctx.set_stroke(stroke.clone());
             ctx.stroke_path(black_box(&path));
@@ -270,11 +258,9 @@ fn bench_linear_gradient(c: &mut Criterion) {
     let rect = Rect::from_points((50.0, 50.0), (750.0, 550.0));
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_paint(black_box(gradient.clone()));
             ctx.fill_rect(&rect);
             ctx.flush();
@@ -283,11 +269,9 @@ fn bench_linear_gradient(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_paint(black_box(gradient.clone()));
             ctx.fill_rect(&rect);
             ctx.flush();
@@ -313,11 +297,9 @@ fn bench_radial_gradient(c: &mut Criterion) {
     let rect = Rect::from_points((100.0, 50.0), (700.0, 550.0));
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_paint(black_box(gradient.clone()));
             ctx.fill_rect(&rect);
             ctx.flush();
@@ -326,11 +308,9 @@ fn bench_radial_gradient(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_paint(black_box(gradient.clone()));
             ctx.fill_rect(&rect);
             ctx.flush();
@@ -354,11 +334,9 @@ fn bench_transforms(c: &mut Criterion) {
         * Affine::scale(1.5);
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_transform(black_box(transform));
             ctx.set_paint(css::ORANGE);
 
@@ -375,11 +353,9 @@ fn bench_transforms(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_transform(black_box(transform));
             ctx.set_paint(css::ORANGE);
 
@@ -410,11 +386,9 @@ fn bench_blend_modes(c: &mut Criterion) {
     let rect2 = Rect::from_points((250.0, 200.0), (550.0, 400.0));
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
 
             // Base layer
             ctx.set_paint(css::RED);
@@ -432,11 +406,9 @@ fn bench_blend_modes(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
 
             // Base layer
             ctx.set_paint(css::RED);
@@ -463,11 +435,9 @@ fn bench_opacity_layer(c: &mut Criterion) {
     let rect = Rect::from_points((100.0, 100.0), (500.0, 400.0));
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.push_opacity_layer(black_box(0.5));
             ctx.set_paint(css::GREEN);
             ctx.fill_rect(&rect);
@@ -478,11 +448,9 @@ fn bench_opacity_layer(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.push_opacity_layer(black_box(0.5));
             ctx.set_paint(css::GREEN);
             ctx.fill_rect(&rect);
@@ -517,11 +485,9 @@ fn bench_clip_layer(c: &mut Criterion) {
     let rect = Rect::from_points((200.0, 150.0), (600.0, 450.0));
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.push_clip_layer(black_box(&clip_path));
             ctx.set_paint(css::VIOLET);
             ctx.fill_rect(&rect);
@@ -532,11 +498,9 @@ fn bench_clip_layer(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.push_clip_layer(black_box(&clip_path));
             ctx.set_paint(css::VIOLET);
             ctx.fill_rect(&rect);
@@ -562,11 +526,9 @@ fn bench_blurred_rounded_rect(c: &mut Criterion) {
     let std_dev = 10.0;
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_paint(css::TEAL);
             ctx.fill_blurred_rounded_rect(black_box(&rect), black_box(radius), black_box(std_dev));
             ctx.flush();
@@ -575,11 +537,9 @@ fn bench_blurred_rounded_rect(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
             ctx.set_paint(css::TEAL);
             ctx.fill_blurred_rounded_rect(black_box(&rect), black_box(radius), black_box(std_dev));
             ctx.flush();
@@ -606,11 +566,9 @@ fn bench_complex_scene(c: &mut Criterion) {
         ]);
 
     group.bench_function("single_thread", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, single_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
 
             // Background gradient
             ctx.set_paint(gradient.clone());
@@ -649,11 +607,9 @@ fn bench_complex_scene(c: &mut Criterion) {
     });
 
     group.bench_function("multi_thread_8T", |b| {
-        let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
-        let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
-
         b.iter(|| {
-            ctx.reset();
+            let mut ctx = RenderContext::new_with(SMALL_WIDTH, SMALL_HEIGHT, multi_threaded_settings());
+            let mut pixmap = Pixmap::new(SMALL_WIDTH, SMALL_HEIGHT);
 
             // Background gradient
             ctx.set_paint(gradient.clone());

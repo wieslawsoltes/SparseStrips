@@ -13,6 +13,7 @@ namespace Vello.Benchmarks;
 /// <summary>
 /// Comprehensive benchmarks for Vello .NET public API
 /// Mirrors the Rust API benchmarks for direct comparison
+/// Uses cold path: recreates RenderContext and Pixmap every iteration
 /// </summary>
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
@@ -42,7 +43,6 @@ public class ApiBenchmarks
             mode: RenderMode.OptimizeSpeed
         ));
         using var pixmap = new Pixmap(SmallWidth, SmallHeight);
-
         var rect = Rect.FromXYWH(100, 100, 400, 300);
 
         ctx.SetPaint(Color.Magenta);
@@ -61,7 +61,6 @@ public class ApiBenchmarks
             mode: RenderMode.OptimizeSpeed
         ));
         using var pixmap = new Pixmap(SmallWidth, SmallHeight);
-
         var rect = Rect.FromXYWH(100, 100, 400, 300);
 
         ctx.SetPaint(Color.Magenta);
@@ -80,7 +79,6 @@ public class ApiBenchmarks
             mode: RenderMode.OptimizeSpeed
         ));
         using var pixmap = new Pixmap(SmallWidth, SmallHeight);
-
         var rect = Rect.FromXYWH(100, 100, 400, 300);
         var stroke = new Stroke(
             width: 5.0f,
@@ -106,7 +104,6 @@ public class ApiBenchmarks
             mode: RenderMode.OptimizeSpeed
         ));
         using var pixmap = new Pixmap(SmallWidth, SmallHeight);
-
         var rect = Rect.FromXYWH(100, 100, 400, 300);
         var stroke = new Stroke(
             width: 5.0f,
@@ -396,7 +393,6 @@ public class ApiBenchmarks
             mode: RenderMode.OptimizeSpeed
         ));
         using var pixmap = new Pixmap(SmallWidth, SmallHeight);
-
         var transform = Affine.Rotation(0.785398); // 45 degrees
 
         ctx.SetTransform(transform);
@@ -423,7 +419,6 @@ public class ApiBenchmarks
             mode: RenderMode.OptimizeSpeed
         ));
         using var pixmap = new Pixmap(SmallWidth, SmallHeight);
-
         var transform = Affine.Rotation(0.785398); // 45 degrees
 
         ctx.SetTransform(transform);
