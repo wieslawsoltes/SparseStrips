@@ -33,6 +33,7 @@ pub mod path;
 pub mod text;
 pub mod mask;
 pub mod image;
+pub mod marshaling_tests;
 
 // Re-export main types for convenience
 pub use types::*;

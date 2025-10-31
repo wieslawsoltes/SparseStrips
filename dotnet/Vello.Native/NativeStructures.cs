@@ -9,7 +9,7 @@ namespace Vello.Native;
 /// Premultiplied RGBA8 color
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal struct VelloPremulRgba8
+public struct VelloPremulRgba8
 {
     public byte R;
     public byte G;
@@ -21,7 +21,7 @@ internal struct VelloPremulRgba8
 /// 2D point
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal struct VelloPoint
+public struct VelloPoint
 {
     public double X;
     public double Y;
@@ -31,7 +31,7 @@ internal struct VelloPoint
 /// Rectangle
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal struct VelloRect
+public struct VelloRect
 {
     public double X0;
     public double Y0;
@@ -43,7 +43,7 @@ internal struct VelloRect
 /// 2D affine transformation (2x3 matrix)
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal struct VelloAffine
+public struct VelloAffine
 {
     public double M11;
     public double M12;
@@ -57,7 +57,7 @@ internal struct VelloAffine
 /// Stroke parameters
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal struct VelloStroke
+public struct VelloStroke
 {
     public float Width;
     public float MiterLimit;
@@ -73,7 +73,7 @@ internal struct VelloStroke
 /// Render settings
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-internal struct VelloRenderSettings
+public struct VelloRenderSettings
 {
     public VelloSimdLevel Level;      // Offset 0, 1 byte
     private byte _padding1;            // Offset 1, alignment padding
@@ -86,7 +86,7 @@ internal struct VelloRenderSettings
 /// Blend mode
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal struct VelloBlendMode
+public struct VelloBlendMode
 {
     public VelloMix Mix;
     public VelloCompose Compose;
@@ -96,7 +96,7 @@ internal struct VelloBlendMode
 /// Color stop for gradients
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal struct VelloColorStop
+public struct VelloColorStop
 {
     public float Offset;
     public byte R;

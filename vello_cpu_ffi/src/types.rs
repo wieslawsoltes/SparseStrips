@@ -84,7 +84,7 @@ pub struct VelloRenderSettings {
 }
 
 /// Render mode enumeration
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloRenderMode {
     OptimizeSpeed = 0,
@@ -105,7 +105,7 @@ pub enum VelloSimdLevel {
 }
 
 /// Line join style
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloJoin {
     Bevel = 0,
@@ -114,7 +114,7 @@ pub enum VelloJoin {
 }
 
 /// Line cap style
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloCap {
     Butt = 0,
@@ -123,7 +123,7 @@ pub enum VelloCap {
 }
 
 /// Fill rule
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloFillRule {
     NonZero = 0,
@@ -131,7 +131,7 @@ pub enum VelloFillRule {
 }
 
 /// Blend mix mode
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloMix {
     Normal = 0,
@@ -153,7 +153,7 @@ pub enum VelloMix {
 }
 
 /// Blend compose mode
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloCompose {
     Clear = 0,
@@ -192,7 +192,7 @@ pub struct VelloColorStop {
 }
 
 /// Gradient extend mode
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloExtend {
     Pad = 0,
@@ -201,7 +201,7 @@ pub enum VelloExtend {
 }
 
 /// Image quality mode
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloImageQuality {
     Low = 0,
@@ -292,13 +292,30 @@ mod tests {
     use std::mem;
 
     #[test]
-    fn test_sizes() {
-        assert_eq!(mem::size_of::<VelloPremulRgba8>(), 4);
-        assert_eq!(mem::size_of::<VelloPoint>(), 16);
-        assert_eq!(mem::size_of::<VelloRect>(), 32);
-        assert_eq!(mem::size_of::<VelloAffine>(), 48);
-        assert_eq!(mem::size_of::<VelloStroke>(), 12);
-        assert_eq!(mem::size_of::<VelloRenderSettings>(), 4);
+    fn test_struct_sizes() {
+        // Verify struct sizes match C# expectations
+        assert_eq!(mem::size_of::<VelloPremulRgba8>(), 4, "VelloPremulRgba8 size mismatch");
+        assert_eq!(mem::size_of::<VelloPoint>(), 16, "VelloPoint size mismatch");
+        assert_eq!(mem::size_of::<VelloRect>(), 32, "VelloRect size mismatch");
+        assert_eq!(mem::size_of::<VelloAffine>(), 48, "VelloAffine size mismatch");
+        assert_eq!(mem::size_of::<VelloStroke>(), 12, "VelloStroke size mismatch");
+        assert_eq!(mem::size_of::<VelloRenderSettings>(), 6, "VelloRenderSettings size mismatch");
+        assert_eq!(mem::size_of::<VelloBlendMode>(), 2, "VelloBlendMode size mismatch");
+        assert_eq!(mem::size_of::<VelloColorStop>(), 8, "VelloColorStop size mismatch");
+    }
+
+    #[test]
+    fn test_enum_sizes() {
+        // All enums should be 1 byte (u8)
+        assert_eq!(mem::size_of::<VelloSimdLevel>(), 1, "VelloSimdLevel should be 1 byte");
+        assert_eq!(mem::size_of::<VelloRenderMode>(), 1, "VelloRenderMode should be 1 byte");
+        assert_eq!(mem::size_of::<VelloJoin>(), 1, "VelloJoin should be 1 byte");
+        assert_eq!(mem::size_of::<VelloCap>(), 1, "VelloCap should be 1 byte");
+        assert_eq!(mem::size_of::<VelloFillRule>(), 1, "VelloFillRule should be 1 byte");
+        assert_eq!(mem::size_of::<VelloMix>(), 1, "VelloMix should be 1 byte");
+        assert_eq!(mem::size_of::<VelloCompose>(), 1, "VelloCompose should be 1 byte");
+        assert_eq!(mem::size_of::<VelloExtend>(), 1, "VelloExtend should be 1 byte");
+        assert_eq!(mem::size_of::<VelloImageQuality>(), 1, "VelloImageQuality should be 1 byte");
     }
 
     #[test]
@@ -308,5 +325,6 @@ mod tests {
         assert_eq!(mem::align_of::<VelloRect>(), 8);
         assert_eq!(mem::align_of::<VelloAffine>(), 8);
         assert_eq!(mem::align_of::<VelloStroke>(), 4);
+        assert_eq!(mem::align_of::<VelloRenderSettings>(), 1);
     }
 }

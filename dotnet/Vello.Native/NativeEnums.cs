@@ -6,7 +6,7 @@ namespace Vello.Native;
 /// <summary>
 /// Render mode enumeration
 /// </summary>
-internal enum VelloRenderMode : byte
+public enum VelloRenderMode : byte
 {
     OptimizeSpeed = 0,
     OptimizeQuality = 1
@@ -15,7 +15,7 @@ internal enum VelloRenderMode : byte
 /// <summary>
 /// SIMD level enumeration
 /// </summary>
-internal enum VelloSimdLevel : byte
+public enum VelloSimdLevel : byte
 {
     Fallback = 0,
     Sse2 = 1,
@@ -29,7 +29,7 @@ internal enum VelloSimdLevel : byte
 /// <summary>
 /// Line join style
 /// </summary>
-internal enum VelloJoin : byte
+public enum VelloJoin : byte
 {
     Bevel = 0,
     Miter = 1,
@@ -39,7 +39,7 @@ internal enum VelloJoin : byte
 /// <summary>
 /// Line cap style
 /// </summary>
-internal enum VelloCap : byte
+public enum VelloCap : byte
 {
     Butt = 0,
     Square = 1,
@@ -49,7 +49,7 @@ internal enum VelloCap : byte
 /// <summary>
 /// Fill rule
 /// </summary>
-internal enum VelloFillRule : byte
+public enum VelloFillRule : byte
 {
     NonZero = 0,
     EvenOdd = 1
@@ -58,7 +58,7 @@ internal enum VelloFillRule : byte
 /// <summary>
 /// Blend mix mode
 /// </summary>
-internal enum VelloMix : byte
+public enum VelloMix : byte
 {
     Normal = 0,
     Multiply = 1,
@@ -81,7 +81,7 @@ internal enum VelloMix : byte
 /// <summary>
 /// Blend compose mode
 /// </summary>
-internal enum VelloCompose : byte
+public enum VelloCompose : byte
 {
     Clear = 0,
     Copy = 1,
@@ -102,7 +102,7 @@ internal enum VelloCompose : byte
 /// <summary>
 /// Gradient extend mode
 /// </summary>
-internal enum VelloExtend : byte
+public enum VelloExtend : byte
 {
     Pad = 0,
     Repeat = 1,
