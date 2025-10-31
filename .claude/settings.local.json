@@ -35,7 +35,8 @@
       "Bash(cargo clean:*)",
       "Bash(git mv:*)",
       "Bash(git add:*)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(xargs -I {} sh -c 'echo \"\"\"\"{}\"\"\"\" && ls -lh \"\"\"\"{}\"\"\"\"')"
     ],
     "deny": [],
     "ask": []
