@@ -9,7 +9,7 @@ namespace Vello.Native;
 /// <summary>
 /// Handles loading of the native vello_cpu_ffi library with cross-platform support.
 /// </summary>
-internal static class NativeLibraryLoader
+public static class NativeLibraryLoader
 {
     private static nint _libraryHandle;
     private static readonly object _lock = new();

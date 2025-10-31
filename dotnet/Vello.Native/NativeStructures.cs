@@ -109,7 +109,7 @@ public struct VelloColorStop
 /// Glyph for text rendering
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-internal struct VelloGlyph
+public struct VelloGlyph
 {
     /// <summary>
     /// Glyph ID (font-specific, not Unicode)
@@ -130,7 +130,7 @@ internal struct VelloGlyph
 /// <summary>
 /// Image quality mode
 /// </summary>
-internal enum VelloImageQuality : byte
+public enum VelloImageQuality : byte
 {
     Low = 0,
     Medium = 1,
