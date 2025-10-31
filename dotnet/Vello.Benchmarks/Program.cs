@@ -15,7 +15,8 @@ var switcher = BenchmarkSwitcher.FromTypes(new[]
     typeof(VelloApiBenchmarks),
     typeof(SkiaSharpApiBenchmarks),
     typeof(VelloOverheadBenchmarks),
-    typeof(SkiaSharpOverheadBenchmarks)
+    typeof(SkiaSharpOverheadBenchmarks),
+    typeof(ComplexSceneBenchmarks)
 });
 
 switcher.Run(args, ManualConfig.Create(DefaultConfig.Instance)
