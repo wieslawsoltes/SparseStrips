@@ -79,8 +79,8 @@ public class ComplexSceneBenchmarks
                     ctx.FillRect(Rect.FromXYWH(x, y, size, size * 0.7));
                     break;
 
-                case 1: // Rounded Rectangle
-                    ctx.FillBlurredRoundedRect(Rect.FromXYWH(x, y, size, size), (float)(size * 0.25), 0);
+                case 1: // Stroked Rectangle
+                    ctx.StrokeRect(Rect.FromXYWH(x, y, size, size));
                     break;
 
                 case 2: // Triangle
@@ -162,8 +162,8 @@ public class ComplexSceneBenchmarks
                     ctx.FillRect(Rect.FromXYWH(x, y, size, size * 0.7));
                     break;
 
-                case 1: // Rounded Rectangle
-                    ctx.FillBlurredRoundedRect(Rect.FromXYWH(x, y, size, size), (float)(size * 0.25), 0);
+                case 1: // Stroked Rectangle
+                    ctx.StrokeRect(Rect.FromXYWH(x, y, size, size));
                     break;
 
                 case 2: // Triangle
@@ -263,8 +263,10 @@ public class ComplexSceneBenchmarks
                     canvas.DrawRect(x, y, size, size * 0.7f, paint);
                     break;
 
-                case 1: // Rounded Rectangle
-                    canvas.DrawRoundRect(x, y, size, size, size * 0.25f, size * 0.25f, paint);
+                case 1: // Stroked Rectangle
+                    paint.Style = SKPaintStyle.Stroke;
+                    canvas.DrawRect(x, y, size, size, paint);
+                    paint.Style = SKPaintStyle.Fill;
                     break;
 
                 case 2: // Triangle
