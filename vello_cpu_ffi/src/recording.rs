@@ -307,7 +307,7 @@ pub extern "C" fn vello_recorder_set_transform(
     }
 
     let a = unsafe { &*affine };
-    let transform = vello_cpu::kurbo::Affine::new([a.a, a.b, a.c, a.d, a.e, a.f]);
+    let transform = vello_cpu::kurbo::Affine::new([a.m11, a.m12, a.m21, a.m22, a.m13, a.m23]);
     let recorder = unsafe { &mut *(recorder as *mut vello_common::recording::Recorder) };
 
     recorder.set_transform(transform);
@@ -353,25 +353,25 @@ pub extern "C" fn vello_recorder_set_stroke(
     }
 
     let s = unsafe { &*stroke };
-    let mut rust_stroke = vello_cpu::peniko::Stroke::new(s.width);
+    let mut rust_stroke = vello_cpu::kurbo::Stroke::new(s.width as f64);
 
     use crate::types::{VelloCap, VelloJoin};
     rust_stroke.start_cap = match s.start_cap {
-        VelloCap::Butt => vello_cpu::peniko::Cap::Butt,
-        VelloCap::Square => vello_cpu::peniko::Cap::Square,
-        VelloCap::Round => vello_cpu::peniko::Cap::Round,
+        VelloCap::Butt => vello_cpu::kurbo::Cap::Butt,
+        VelloCap::Square => vello_cpu::kurbo::Cap::Square,
+        VelloCap::Round => vello_cpu::kurbo::Cap::Round,
     };
     rust_stroke.end_cap = match s.end_cap {
-        VelloCap::Butt => vello_cpu::peniko::Cap::Butt,
-        VelloCap::Square => vello_cpu::peniko::Cap::Square,
-        VelloCap::Round => vello_cpu::peniko::Cap::Round,
+        VelloCap::Butt => vello_cpu::kurbo::Cap::Butt,
+        VelloCap::Square => vello_cpu::kurbo::Cap::Square,
+        VelloCap::Round => vello_cpu::kurbo::Cap::Round,
     };
     rust_stroke.join = match s.join {
-        VelloJoin::Bevel => vello_cpu::peniko::Join::Bevel,
-        VelloJoin::Miter => vello_cpu::peniko::Join::Miter,
-        VelloJoin::Round => vello_cpu::peniko::Join::Round,
+        VelloJoin::Bevel => vello_cpu::kurbo::Join::Bevel,
+        VelloJoin::Miter => vello_cpu::kurbo::Join::Miter,
+        VelloJoin::Round => vello_cpu::kurbo::Join::Round,
     };
-    rust_stroke.miter_limit = s.miter_limit;
+    rust_stroke.miter_limit = s.miter_limit as f64;
 
     let recorder = unsafe { &mut *(recorder as *mut vello_common::recording::Recorder) };
     recorder.set_stroke(rust_stroke);
@@ -395,7 +395,7 @@ pub extern "C" fn vello_recorder_set_paint_transform(
     }
 
     let a = unsafe { &*affine };
-    let transform = vello_cpu::kurbo::Affine::new([a.a, a.b, a.c, a.d, a.e, a.f]);
+    let transform = vello_cpu::kurbo::Affine::new([a.m11, a.m12, a.m21, a.m22, a.m13, a.m23]);
     let recorder = unsafe { &mut *(recorder as *mut vello_common::recording::Recorder) };
 
     recorder.set_paint_transform(transform);
