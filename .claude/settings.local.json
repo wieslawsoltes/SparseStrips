@@ -26,7 +26,13 @@
       "Bash(tee:*)",
       "Read(//private/tmp/**)",
       "Bash(pkill:*)",
-      "Bash(dotnet:*)"
+      "Bash(dotnet:*)",
+      "Read(//tmp/**)",
+      "Bash(timeout 30 cargo bench:*)",
+      "Bash(cargo test:*)",
+      "Bash(./target/release/deps/overhead_benchmark-08bdcd8b5d58f332:*)",
+      "Bash(timeout 600 cargo bench:*)",
+      "Bash(cargo clean:*)"
     ],
     "deny": [],
     "ask": []
