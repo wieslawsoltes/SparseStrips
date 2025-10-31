@@ -16,6 +16,10 @@ public sealed class RenderContext : IDisposable
 {
     private nint _handle;
     private bool _disposed;
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void RecordCallbackDelegate(nint userData, nint recorderHandle);
+    private static readonly RecordCallbackDelegate s_recordCallbackDelegate = RecordCallback;
+    private static readonly nint s_recordCallbackPtr = Marshal.GetFunctionPointerForDelegate(s_recordCallbackDelegate);
 
     public RenderContext(ushort width, ushort height)
     {
@@ -661,10 +665,10 @@ public sealed class RenderContext : IDisposable
         if (recording == null) throw new ArgumentNullException(nameof(recording));
         if (recordAction == null) throw new ArgumentNullException(nameof(recordAction));
 
+        nint callback = s_recordCallbackPtr;
         nint userData = recording.PrepareCallback(recordAction);
         try
         {
-            delegate* unmanaged[Cdecl]<nint, nint, void> callback = &RecordCallback;
             VelloException.ThrowIfError(
                 NativeMethods.RenderContext_Record(
                     Handle,
@@ -678,7 +682,6 @@ public sealed class RenderContext : IDisposable
         }
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static void RecordCallback(nint userData, nint recorderHandle)
     {
         var state = (Recording.RecordingCallbackState)GCHandle.FromIntPtr(userData).Target!;

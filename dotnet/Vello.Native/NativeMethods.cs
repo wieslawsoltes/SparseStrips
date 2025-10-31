@@ -466,12 +466,11 @@ public static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "vello_recording_len")]
     public static partial nuint Recording_Len(nint recording);
 
-    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_record")]
-    public static unsafe partial int RenderContext_Record(
+    public static partial int RenderContext_Record(
         nint ctx,
         nint recording,
-        delegate* unmanaged[Cdecl]<nint, nint, void> callback,
+        nint callback,
         nint userData);
 
     [SuppressGCTransition]
