@@ -33,7 +33,7 @@ public class ComplexSceneBenchmarks
     // ========================================================================
 
     [Benchmark(Description = "Vello - 1T")]
-    [BenchmarkCategory("Vello_SingleThread")]
+    [BenchmarkCategory("Vello_SingleThread", "All")]
     public void Vello_ComplexScene_SingleThread()
     {
         using var ctx = new RenderContext(Width, Height, new RenderSettings(
@@ -118,7 +118,7 @@ public class ComplexSceneBenchmarks
     // ========================================================================
 
     [Benchmark(Description = "Vello - 8T")]
-    [BenchmarkCategory("Vello_MultiThread")]
+    [BenchmarkCategory("Vello_MultiThread", "All")]
     public void Vello_ComplexScene_MultiThread8T()
     {
         using var ctx = new RenderContext(Width, Height, new RenderSettings(
@@ -201,7 +201,7 @@ public class ComplexSceneBenchmarks
     // ========================================================================
 
     [Benchmark(Baseline = true, Description = "SkiaSharp")]
-    [BenchmarkCategory("SkiaSharp")]
+    [BenchmarkCategory("SkiaSharp", "All")]
     public void SkiaSharp_ComplexScene()
     {
         var info = new SKImageInfo(Width, Height, SKColorType.Rgba8888, SKAlphaType.Premul);
