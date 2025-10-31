@@ -108,3 +108,15 @@ public enum VelloExtend : byte
     Repeat = 1,
     Reflect = 2
 }
+
+/// <summary>
+/// Paint kind enumeration (for querying paint type)
+/// </summary>
+public enum VelloPaintKind : byte
+{
+    Solid = 0,
+    LinearGradient = 1,
+    RadialGradient = 2,
+    SweepGradient = 3,
+    Image = 4
+}

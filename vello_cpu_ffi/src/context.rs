@@ -716,6 +716,34 @@ pub extern "C" fn vello_render_context_reset_paint_transform(ctx: *mut VelloRend
     })
 }
 
+/// Get the current paint kind (for querying paint type)
+#[no_mangle]
+pub extern "C" fn vello_render_context_get_paint_kind(
+    ctx: *const VelloRenderContext,
+) -> VelloPaintKind {
+    if ctx.is_null() {
+        set_last_error("Null context pointer");
+        return VelloPaintKind::Solid; // Default fallback
+    }
+
+    let ctx = unsafe { &*(ctx as *const RenderContext) };
+    let paint = ctx.paint();
+
+    use vello_cpu::peniko::Brush;
+    match paint {
+        Brush::Solid(_) => VelloPaintKind::Solid,
+        Brush::Gradient(grad) => {
+            use vello_cpu::peniko::GradientKind;
+            match grad.kind {
+                GradientKind::Linear { .. } => VelloPaintKind::LinearGradient,
+                GradientKind::Radial { .. } => VelloPaintKind::RadialGradient,
+                GradientKind::Sweep { .. } => VelloPaintKind::SweepGradient,
+            }
+        }
+        Brush::Image(_) => VelloPaintKind::Image,
+    }
+}
+
 /// Set anti-aliasing threshold (0-255, or negative to use default)
 #[no_mangle]
 pub extern "C" fn vello_render_context_set_aliasing_threshold(

@@ -33,6 +33,7 @@ pub mod path;
 pub mod text;
 pub mod mask;
 pub mod image;
+pub mod recording;
 pub mod marshaling_tests;
 
 // Re-export main types for convenience
@@ -61,3 +62,6 @@ pub use mask::*;
 
 // Re-export image functions
 pub use image::*;
+
+// Re-export recording functions
+pub use recording::*;

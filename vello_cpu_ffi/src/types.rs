@@ -209,6 +209,17 @@ pub enum VelloImageQuality {
     High = 2,
 }
 
+/// Paint kind enumeration (for querying paint type)
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum VelloPaintKind {
+    Solid = 0,
+    LinearGradient = 1,
+    RadialGradient = 2,
+    SweepGradient = 3,
+    Image = 4,
+}
+
 // Conversion helpers
 impl From<vello_common::peniko::color::PremulRgba8> for VelloPremulRgba8 {
     fn from(color: vello_common::peniko::color::PremulRgba8) -> Self {
@@ -316,6 +327,7 @@ mod tests {
         assert_eq!(mem::size_of::<VelloCompose>(), 1, "VelloCompose should be 1 byte");
         assert_eq!(mem::size_of::<VelloExtend>(), 1, "VelloExtend should be 1 byte");
         assert_eq!(mem::size_of::<VelloImageQuality>(), 1, "VelloImageQuality should be 1 byte");
+        assert_eq!(mem::size_of::<VelloPaintKind>(), 1, "VelloPaintKind should be 1 byte");
     }
 
     #[test]

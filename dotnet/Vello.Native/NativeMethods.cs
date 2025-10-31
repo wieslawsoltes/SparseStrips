@@ -193,6 +193,9 @@ public static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_reset_paint_transform")]
     public static partial int RenderContext_ResetPaintTransform(nint ctx);
 
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_get_paint_kind")]
+    public static partial VelloPaintKind RenderContext_GetPaintKind(nint ctx);
+
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_aliasing_threshold")]
     public static partial int RenderContext_SetAliasingThreshold(nint ctx, short threshold);
 
@@ -372,4 +375,46 @@ public static partial class NativeMethods
 
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_set_paint_image")]
     public static partial int RenderContext_SetPaintImage(nint ctx, nint image);
+
+    // Recording
+    [LibraryImport(LibraryName, EntryPoint = "vello_recording_new")]
+    public static partial nint Recording_New();
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_recording_free")]
+    public static partial void Recording_Free(nint recording);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_recording_clear")]
+    public static partial int Recording_Clear(nint recording);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_recording_len")]
+    public static partial nuint Recording_Len(nint recording);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_record")]
+    public static unsafe partial int RenderContext_Record(
+        nint ctx,
+        nint recording,
+        delegate* unmanaged[Cdecl]<nint, nint, void> callback,
+        nint userData);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_prepare_recording")]
+    public static partial int RenderContext_PrepareRecording(nint ctx, nint recording);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_render_context_execute_recording")]
+    public static partial int RenderContext_ExecuteRecording(nint ctx, nint recording);
+
+    // Recorder methods
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_fill_rect")]
+    public static unsafe partial int Recorder_FillRect(nint recorder, VelloRect* rect);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_stroke_rect")]
+    public static unsafe partial int Recorder_StrokeRect(nint recorder, VelloRect* rect);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_fill_path")]
+    public static partial int Recorder_FillPath(nint recorder, nint path);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_stroke_path")]
+    public static partial int Recorder_StrokePath(nint recorder, nint path);
+
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_set_paint_solid")]
+    public static partial int Recorder_SetPaintSolid(nint recorder, byte r, byte g, byte b, byte a);
 }

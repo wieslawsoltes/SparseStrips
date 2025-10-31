@@ -1,6 +1,8 @@
 // Copyright 2025 Wieslaw Soltes
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Vello.Geometry;
 using Vello.Native;
 
@@ -630,6 +632,15 @@ public sealed class RenderContext : IDisposable
             NativeMethods.RenderContext_ResetPaintTransform(Handle));
     }
 
+    /// <summary>
+    /// Gets the current paint kind (for querying paint type).
+    /// </summary>
+    /// <returns>The kind of paint currently set.</returns>
+    public PaintKind GetPaintKind()
+    {
+        return (PaintKind)NativeMethods.RenderContext_GetPaintKind(Handle);
+    }
+
     public void SetAliasingThreshold(byte? threshold)
     {
         short value = threshold.HasValue ? (short)threshold.Value : (short)-1;
@@ -712,6 +723,79 @@ public sealed class RenderContext : IDisposable
                     height,
                     (VelloRenderMode)renderMode));
         }
+    }
+
+    /// <summary>
+    /// Records drawing operations for later replay.
+    /// </summary>
+    /// <param name="recording">The recording to store operations in.</param>
+    /// <param name="recordAction">The callback that performs drawing operations using the provided recorder.</param>
+    /// <remarks>
+    /// The callback receives a <see cref="Recorder"/> instance that supports the same drawing operations
+    /// as <see cref="RenderContext"/>. All operations performed in the callback are recorded into the
+    /// <paramref name="recording"/> for later playback using <see cref="ExecuteRecording"/>.
+    /// </remarks>
+    public unsafe void Record(Recording recording, Action<Recorder> recordAction)
+    {
+        if (recording == null) throw new ArgumentNullException(nameof(recording));
+        if (recordAction == null) throw new ArgumentNullException(nameof(recordAction));
+
+        var handle = GCHandle.Alloc(recordAction);
+        try
+        {
+            delegate* unmanaged[Cdecl]<nint, nint, void> callback = &RecordCallback;
+            VelloException.ThrowIfError(
+                NativeMethods.RenderContext_Record(
+                    Handle,
+                    recording.Handle,
+                    callback,
+                    GCHandle.ToIntPtr(handle)));
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    private static void RecordCallback(nint userData, nint recorderHandle)
+    {
+        var action = (Action<Recorder>)GCHandle.FromIntPtr(userData).Target!;
+        var recorder = new Recorder(recorderHandle);
+        action(recorder);
+    }
+
+    /// <summary>
+    /// Prepares a recording for optimized playback.
+    /// </summary>
+    /// <param name="recording">The recording to prepare.</param>
+    /// <remarks>
+    /// This method optimizes the recorded operations for efficient playback.
+    /// Call this once after recording is complete and before calling <see cref="ExecuteRecording"/>.
+    /// </remarks>
+    public void PrepareRecording(Recording recording)
+    {
+        if (recording == null) throw new ArgumentNullException(nameof(recording));
+
+        VelloException.ThrowIfError(
+            NativeMethods.RenderContext_PrepareRecording(Handle, recording.Handle));
+    }
+
+    /// <summary>
+    /// Executes a previously recorded set of drawing operations.
+    /// </summary>
+    /// <param name="recording">The recording to execute.</param>
+    /// <remarks>
+    /// This replays all drawing operations that were recorded into <paramref name="recording"/>
+    /// via <see cref="Record"/>. The recording should be prepared using <see cref="PrepareRecording"/>
+    /// before execution for optimal performance.
+    /// </remarks>
+    public void ExecuteRecording(Recording recording)
+    {
+        if (recording == null) throw new ArgumentNullException(nameof(recording));
+
+        VelloException.ThrowIfError(
+            NativeMethods.RenderContext_ExecuteRecording(Handle, recording.Handle));
     }
 
     public void Dispose()
