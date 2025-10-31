@@ -267,6 +267,80 @@ public class ComplexSceneBenchmarks
         }
     }
 
+    private static Recording CreateRecording(int shapeCount)
+    {
+        var recording = new Recording();
+
+        using var ctx = new RenderContext(Width, Height, new RenderSettings(
+            level: SimdLevel.Avx2,
+            numThreads: 0,
+            mode: RenderMode.OptimizeSpeed));
+
+        ctx.SetStroke(new Stroke(
+            width: 1.0f,
+            join: Join.Bevel,
+            startCap: Cap.Butt,
+            endCap: Cap.Butt,
+            miterLimit: 4.0f));
+
+        ctx.Record(recording, recorder =>
+        {
+            var random = new Random(42);
+
+            for (int i = 0; i < shapeCount; i++)
+            {
+                double x = random.NextDouble() * (Width - 60);
+                double y = random.NextDouble() * (Height - 60);
+                double size = 10 + random.NextDouble() * 50;
+                int shapeType = i % 4;
+
+                byte r = (byte)random.Next(256);
+                byte g = (byte)random.Next(256);
+                byte b = (byte)random.Next(256);
+                byte a = (byte)(180 + random.Next(76));
+
+                recorder.SetPaint(new Color(r, g, b, a));
+
+                switch (shapeType)
+                {
+                    case 0:
+                        recorder.FillRect(Rect.FromXYWH(x, y, size, size * 0.7));
+                        break;
+
+                    case 1:
+                        recorder.StrokeRect(Rect.FromXYWH(x, y, size, size));
+                        break;
+
+                    case 2:
+                        using (var triangle = new BezPath())
+                        {
+                            triangle.MoveTo(x + size / 2, y);
+                            triangle.LineTo(x + size, y + size);
+                            triangle.LineTo(x, y + size);
+                            triangle.Close();
+                            recorder.FillPath(triangle);
+                        }
+                        break;
+
+                    case 3:
+                        using (var curve = new BezPath())
+                        {
+                            curve.MoveTo(x, y);
+                            curve.CurveTo(x + size * 0.5, y - size * 0.3,
+                                          x + size, y + size * 0.3,
+                                          x + size, y + size);
+                            curve.LineTo(x, y + size);
+                            curve.Close();
+                            recorder.FillPath(curve);
+                        }
+                        break;
+                }
+            }
+        });
+
+        return recording;
+    }
+
     // ========================================================================
     // Vello Single-Threaded Benchmarks
     // ========================================================================
@@ -430,6 +504,80 @@ public class ComplexSceneBenchmarks
                     break;
             }
         }
+
+        ctx.Flush();
+        ctx.RenderToPixmap(pixmap);
+    }
+
+    // ========================================================================
+    // Vello Recording Benchmarks (record once per run, then replay)
+    // ========================================================================
+
+    [Benchmark(Description = "Vello Recording - 1T")]
+    [BenchmarkCategory("Vello_Recording_SingleThread", "All")]
+    public void Vello_ComplexScene_Recording_SingleThread()
+    {
+        using var recording = CreateRecording(ShapeCount);
+        using var ctx = new RenderContext(Width, Height, new RenderSettings(
+            level: SimdLevel.Avx2,
+            numThreads: 0,
+            mode: RenderMode.OptimizeSpeed
+        ));
+        using var pixmap = new Pixmap(Width, Height);
+
+        var gradientStops = new ColorStop[]
+        {
+            new(0.0f, new Color(240, 248, 255, 255)), // Alice blue
+            new(1.0f, new Color(135, 206, 235, 255))  // Sky blue
+        };
+
+        ctx.SetPaintLinearGradient(0, 0, Width, Height, gradientStops);
+        ctx.FillRect(Rect.FromXYWH(0, 0, Width, Height));
+
+        ctx.SetStroke(new Stroke(
+            width: 1.0f,
+            join: Join.Bevel,
+            startCap: Cap.Butt,
+            endCap: Cap.Butt,
+            miterLimit: 4.0f));
+
+        ctx.PrepareRecording(recording);
+        ctx.ExecuteRecording(recording);
+
+        ctx.Flush();
+        ctx.RenderToPixmap(pixmap);
+    }
+
+    [Benchmark(Description = "Vello Recording - 8T")]
+    [BenchmarkCategory("Vello_Recording_MultiThread", "All")]
+    public void Vello_ComplexScene_Recording_MultiThread8T()
+    {
+        using var recording = CreateRecording(ShapeCount);
+        using var ctx = new RenderContext(Width, Height, new RenderSettings(
+            level: SimdLevel.Avx2,
+            numThreads: 8,
+            mode: RenderMode.OptimizeSpeed
+        ));
+        using var pixmap = new Pixmap(Width, Height);
+
+        var gradientStops = new ColorStop[]
+        {
+            new(0.0f, new Color(240, 248, 255, 255)), // Alice blue
+            new(1.0f, new Color(135, 206, 235, 255))  // Sky blue
+        };
+
+        ctx.SetPaintLinearGradient(0, 0, Width, Height, gradientStops);
+        ctx.FillRect(Rect.FromXYWH(0, 0, Width, Height));
+
+        ctx.SetStroke(new Stroke(
+            width: 1.0f,
+            join: Join.Bevel,
+            startCap: Cap.Butt,
+            endCap: Cap.Butt,
+            miterLimit: 4.0f));
+
+        ctx.PrepareRecording(recording);
+        ctx.ExecuteRecording(recording);
 
         ctx.Flush();
         ctx.RenderToPixmap(pixmap);
