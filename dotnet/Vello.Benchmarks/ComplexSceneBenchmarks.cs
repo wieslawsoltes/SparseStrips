@@ -79,21 +79,8 @@ public class ComplexSceneBenchmarks
                     ctx.FillRect(Rect.FromXYWH(x, y, size, size * 0.7));
                     break;
 
-                case 1: // Circle (approximated with path)
-                    using (var circle = new BezPath())
-                    {
-                        double cx = x + size / 2;
-                        double cy = y + size / 2;
-                        double radius = size / 2;
-                        circle.MoveTo(cx + radius, cy);
-                        for (int j = 1; j <= 16; j++)
-                        {
-                            double angle = j * Math.PI * 2.0 / 16.0;
-                            circle.LineTo(cx + radius * Math.Cos(angle), cy + radius * Math.Sin(angle));
-                        }
-                        circle.Close();
-                        ctx.FillPath(circle);
-                    }
+                case 1: // Rounded Rectangle
+                    ctx.FillBlurredRoundedRect(Rect.FromXYWH(x, y, size, size), (float)(size * 0.25), 0);
                     break;
 
                 case 2: // Triangle
@@ -175,21 +162,8 @@ public class ComplexSceneBenchmarks
                     ctx.FillRect(Rect.FromXYWH(x, y, size, size * 0.7));
                     break;
 
-                case 1: // Circle
-                    using (var circle = new BezPath())
-                    {
-                        double cx = x + size / 2;
-                        double cy = y + size / 2;
-                        double radius = size / 2;
-                        circle.MoveTo(cx + radius, cy);
-                        for (int j = 1; j <= 16; j++)
-                        {
-                            double angle = j * Math.PI * 2.0 / 16.0;
-                            circle.LineTo(cx + radius * Math.Cos(angle), cy + radius * Math.Sin(angle));
-                        }
-                        circle.Close();
-                        ctx.FillPath(circle);
-                    }
+                case 1: // Rounded Rectangle
+                    ctx.FillBlurredRoundedRect(Rect.FromXYWH(x, y, size, size), (float)(size * 0.25), 0);
                     break;
 
                 case 2: // Triangle
@@ -289,11 +263,8 @@ public class ComplexSceneBenchmarks
                     canvas.DrawRect(x, y, size, size * 0.7f, paint);
                     break;
 
-                case 1: // Circle
-                    float cx = x + size / 2;
-                    float cy = y + size / 2;
-                    float radius = size / 2;
-                    canvas.DrawCircle(cx, cy, radius, paint);
+                case 1: // Rounded Rectangle
+                    canvas.DrawRoundRect(x, y, size, size, size * 0.25f, size * 0.25f, paint);
                     break;
 
                 case 2: // Triangle
