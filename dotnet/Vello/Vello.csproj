@@ -6,12 +6,7 @@
 
     <!-- NuGet Package Metadata -->
     <PackageId>Vello</PackageId>
-    <Version>0.1.0</Version>
-    <Authors>Wieslaw Soltes</Authors>
     <Description>.NET bindings for Vello Sparse Strips CPU renderer</Description>
-    <PackageLicenseExpression>Apache-2.0 OR MIT</PackageLicenseExpression>
-    <PackageTags>graphics;2d;rendering;vector;cpu</PackageTags>
-    <RepositoryUrl>https://github.com/wieslawsoltes/SparseStrips</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

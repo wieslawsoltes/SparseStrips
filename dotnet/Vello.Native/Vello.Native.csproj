@@ -6,7 +6,11 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <IsPackable>false</IsPackable>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>Vello.Native</PackageId>
+    <Description>Native P/Invoke bindings for Vello CPU renderer FFI</Description>
+    <PackageTags>graphics;2d;rendering;vector;cpu;native;ffi</PackageTags>
   </PropertyGroup>
 
   <!-- Define native library paths based on configuration -->
