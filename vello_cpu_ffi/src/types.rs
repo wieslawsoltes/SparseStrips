@@ -92,7 +92,7 @@ pub enum VelloRenderMode {
 }
 
 /// SIMD level enumeration
-#[repr(C)]
+#[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VelloSimdLevel {
     Fallback = 0,
