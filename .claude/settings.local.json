@@ -33,7 +33,8 @@
       "Bash(./target/release/deps/overhead_benchmark-08bdcd8b5d58f332:*)",
       "Bash(timeout 600 cargo bench:*)",
       "Bash(cargo clean:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
