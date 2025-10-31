@@ -1,6 +1,8 @@
 // Copyright 2025 Wieslaw Soltes
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+using System.Buffers;
+using System.Runtime.InteropServices;
 using System.Text;
 using Vello.Native;
 
@@ -71,45 +73,48 @@ public sealed class FontData : IDisposable
         if (text.Length == 0)
             return 0;
 
-        // Convert text to UTF-8 with null terminator
-        // Use stackalloc for small strings (≤256 chars = ~768 bytes for UTF-8)
+        Span<VelloGlyph> nativeGlyphs = MemoryMarshal.Cast<Glyph, VelloGlyph>(destination);
+
         const int StackAllocThreshold = 256;
         int maxUtf8Length = Encoding.UTF8.GetMaxByteCount(text.Length) + 1; // +1 for null terminator
 
-        Span<byte> utf8Bytes = maxUtf8Length <= StackAllocThreshold
-            ? stackalloc byte[maxUtf8Length]
-            : new byte[maxUtf8Length];
-
-        int utf8Length = Encoding.UTF8.GetBytes(text, utf8Bytes);
-        utf8Bytes[utf8Length] = 0; // Null terminator
-
-        // Allocate temporary native glyphs buffer
-        // Use stackalloc for typical text (≤256 glyphs = 3KB)
-        Span<VelloGlyph> nativeGlyphs = text.Length <= StackAllocThreshold
-            ? stackalloc VelloGlyph[text.Length]
-            : new VelloGlyph[text.Length];
-
-        nuint count;
-
-        fixed (byte* textPtr = utf8Bytes)
-        fixed (VelloGlyph* glyphsPtr = nativeGlyphs)
+        if (maxUtf8Length <= StackAllocThreshold)
         {
-            VelloException.ThrowIfError(
-                NativeMethods.FontData_TextToGlyphs(
-                    _handle,
-                    textPtr,
-                    glyphsPtr,
-                    (nuint)nativeGlyphs.Length,
-                    &count));
+            Span<byte> utf8Bytes = stackalloc byte[maxUtf8Length];
+            return Convert(this, text, utf8Bytes, nativeGlyphs);
         }
 
-        // Convert to public Glyph type in destination span
-        for (int i = 0; i < (int)count; i++)
+        byte[] rentedUtf8 = ArrayPool<byte>.Shared.Rent(maxUtf8Length);
+        try
         {
-            destination[i] = new Glyph(nativeGlyphs[i].Id, nativeGlyphs[i].X, nativeGlyphs[i].Y);
+            return Convert(this, text, rentedUtf8.AsSpan(0, maxUtf8Length), nativeGlyphs);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rentedUtf8);
         }
 
-        return (int)count;
+        static int Convert(FontData instance, string text, Span<byte> utf8Bytes, Span<VelloGlyph> nativeGlyphs)
+        {
+            int utf8Length = Encoding.UTF8.GetBytes(text, utf8Bytes);
+            utf8Bytes[utf8Length] = 0; // Null terminator
+
+            nuint count;
+
+            fixed (byte* textPtr = utf8Bytes)
+            fixed (VelloGlyph* glyphsPtr = nativeGlyphs)
+            {
+                VelloException.ThrowIfError(
+                    NativeMethods.FontData_TextToGlyphs(
+                        instance._handle,
+                        textPtr,
+                        glyphsPtr,
+                        (nuint)nativeGlyphs.Length,
+                        &count));
+            }
+
+            return (int)count;
+        }
     }
 
     /// <summary>

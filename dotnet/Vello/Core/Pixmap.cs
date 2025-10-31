@@ -106,7 +106,7 @@ public sealed class Pixmap : IDisposable
     public byte[] ToByteArray()
     {
         var pixels = GetPixels();
-        var bytes = new byte[pixels.Length * 4];
+        var bytes = GC.AllocateUninitializedArray<byte>(pixels.Length * 4);
 
         for (int i = 0; i < pixels.Length; i++)
         {
@@ -234,7 +234,7 @@ public sealed class Pixmap : IDisposable
 
         try
         {
-            var result = new byte[len];
+            var result = GC.AllocateUninitializedArray<byte>((int)len);
             new ReadOnlySpan<byte>(dataPtr, (int)len).CopyTo(result);
             return result;
         }

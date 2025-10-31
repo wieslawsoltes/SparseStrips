@@ -32,16 +32,20 @@ public static partial class NativeMethods
     public const int VELLO_ERROR_PNG_ENCODE = -7;
 
     // Version and capabilities
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_version")]
     public static partial nint Version();
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_simd_detect")]
     public static partial VelloSimdLevel SimdDetect();
 
     // Error handling
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_get_last_error")]
     public static partial nint GetLastError();
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_clear_last_error")]
     public static partial void ClearLastError();
 
@@ -58,9 +62,11 @@ public static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_free")]
     public static partial void RenderContext_Free(nint ctx);
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_width")]
     public static partial ushort RenderContext_Width(nint ctx);
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_height")]
     public static partial ushort RenderContext_Height(nint ctx);
 
@@ -177,6 +183,7 @@ public static partial class NativeMethods
         nint ctx,
         VelloStroke* outStroke);
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_get_fill_rule")]
     public static partial VelloFillRule RenderContext_GetFillRule(nint ctx);
 
@@ -193,6 +200,7 @@ public static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_reset_paint_transform")]
     public static partial int RenderContext_ResetPaintTransform(nint ctx);
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_get_paint_kind")]
     public static partial VelloPaintKind RenderContext_GetPaintKind(nint ctx);
 
@@ -231,9 +239,11 @@ public static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_free")]
     public static partial void Pixmap_Free(nint pixmap);
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_width")]
     public static partial ushort Pixmap_Width(nint pixmap);
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_pixmap_height")]
     public static partial ushort Pixmap_Height(nint pixmap);
 
@@ -352,9 +362,11 @@ public static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "vello_mask_free")]
     public static partial void Mask_Free(nint mask);
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_mask_get_width")]
     public static partial ushort Mask_GetWidth(nint mask);
 
+    [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_mask_get_height")]
     public static partial ushort Mask_GetHeight(nint mask);
 

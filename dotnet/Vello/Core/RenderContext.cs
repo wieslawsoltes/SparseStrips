@@ -1,6 +1,7 @@
 // Copyright 2025 Wieslaw Soltes
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Vello.Geometry;
@@ -70,7 +71,7 @@ public sealed class RenderContext : IDisposable
     }
 
     /// <summary>
-    /// Sets the paint to a linear gradient. Zero-allocation for gradients with ≤32 stops.
+    /// Sets the paint to a linear gradient with zero additional allocations.
     /// </summary>
     /// <param name="x0">X coordinate of gradient start point</param>
     /// <param name="y0">Y coordinate of gradient start point</param>
@@ -89,25 +90,7 @@ public sealed class RenderContext : IDisposable
         if (stops.Length < 2)
             throw new ArgumentException("Gradient must have at least 2 color stops", nameof(stops));
 
-        // Use stack allocation for typical gradients (≤32 stops = 512 bytes)
-        // Heap allocate for large gradients (>32 stops)
-        const int StackAllocThreshold = 32;
-        Span<VelloColorStop> nativeStops = stops.Length <= StackAllocThreshold
-            ? stackalloc VelloColorStop[stops.Length]
-            : new VelloColorStop[stops.Length];
-
-        // Convert to native format
-        for (int i = 0; i < stops.Length; i++)
-        {
-            nativeStops[i] = new VelloColorStop
-            {
-                Offset = stops[i].Offset,
-                R = stops[i].Color.R,
-                G = stops[i].Color.G,
-                B = stops[i].Color.B,
-                A = stops[i].Color.A
-            };
-        }
+        ReadOnlySpan<VelloColorStop> nativeStops = MemoryMarshal.Cast<ColorStop, VelloColorStop>(stops);
 
         fixed (VelloColorStop* pStops = nativeStops)
         {
@@ -129,7 +112,7 @@ public sealed class RenderContext : IDisposable
         => SetPaintLinearGradient(x0, y0, x1, y1, stops.AsSpan(), extend);
 
     /// <summary>
-    /// Sets the paint to a radial gradient. Zero-allocation for gradients with ≤32 stops.
+        /// Sets the paint to a radial gradient with zero additional allocations.
     /// </summary>
     /// <param name="cx">X coordinate of gradient center</param>
     /// <param name="cy">Y coordinate of gradient center</param>
@@ -147,24 +130,7 @@ public sealed class RenderContext : IDisposable
         if (stops.Length < 2)
             throw new ArgumentException("Gradient must have at least 2 color stops", nameof(stops));
 
-        // Use stack allocation for typical gradients (≤32 stops = 512 bytes)
-        const int StackAllocThreshold = 32;
-        Span<VelloColorStop> nativeStops = stops.Length <= StackAllocThreshold
-            ? stackalloc VelloColorStop[stops.Length]
-            : new VelloColorStop[stops.Length];
-
-        // Convert to native format
-        for (int i = 0; i < stops.Length; i++)
-        {
-            nativeStops[i] = new VelloColorStop
-            {
-                Offset = stops[i].Offset,
-                R = stops[i].Color.R,
-                G = stops[i].Color.G,
-                B = stops[i].Color.B,
-                A = stops[i].Color.A
-            };
-        }
+        ReadOnlySpan<VelloColorStop> nativeStops = MemoryMarshal.Cast<ColorStop, VelloColorStop>(stops);
 
         fixed (VelloColorStop* pStops = nativeStops)
         {
@@ -186,7 +152,7 @@ public sealed class RenderContext : IDisposable
         => SetPaintRadialGradient(cx, cy, radius, stops.AsSpan(), extend);
 
     /// <summary>
-    /// Sets the paint to a sweep (angular) gradient. Zero-allocation for gradients with ≤32 stops.
+    /// Sets the paint to a sweep (angular) gradient with zero additional allocations.
     /// </summary>
     /// <param name="cx">X coordinate of gradient center</param>
     /// <param name="cy">Y coordinate of gradient center</param>
@@ -205,24 +171,7 @@ public sealed class RenderContext : IDisposable
         if (stops.Length < 2)
             throw new ArgumentException("Gradient must have at least 2 color stops", nameof(stops));
 
-        // Use stack allocation for typical gradients (≤32 stops = 512 bytes)
-        const int StackAllocThreshold = 32;
-        Span<VelloColorStop> nativeStops = stops.Length <= StackAllocThreshold
-            ? stackalloc VelloColorStop[stops.Length]
-            : new VelloColorStop[stops.Length];
-
-        // Convert to native format
-        for (int i = 0; i < stops.Length; i++)
-        {
-            nativeStops[i] = new VelloColorStop
-            {
-                Offset = stops[i].Offset,
-                R = stops[i].Color.R,
-                G = stops[i].Color.G,
-                B = stops[i].Color.B,
-                A = stops[i].Color.A
-            };
-        }
+        ReadOnlySpan<VelloColorStop> nativeStops = MemoryMarshal.Cast<ColorStop, VelloColorStop>(stops);
 
         fixed (VelloColorStop* pStops = nativeStops)
         {
@@ -288,20 +237,14 @@ public sealed class RenderContext : IDisposable
             NativeMethods.RenderContext_PopLayer(Handle));
     }
 
-    public unsafe void SetTransform(Affine transform)
+    public unsafe void SetTransform(in Affine transform)
     {
-        var native = new VelloAffine
+        ref readonly VelloAffine native = ref Unsafe.As<Affine, VelloAffine>(ref Unsafe.AsRef(in transform));
+        fixed (VelloAffine* ptr = &native)
         {
-            M11 = transform.M11,
-            M12 = transform.M12,
-            M13 = transform.M13,
-            M21 = transform.M21,
-            M22 = transform.M22,
-            M23 = transform.M23
-        };
-
-        VelloException.ThrowIfError(
-            NativeMethods.RenderContext_SetTransform(Handle, &native));
+            VelloException.ThrowIfError(
+                NativeMethods.RenderContext_SetTransform(Handle, ptr));
+        }
     }
 
     public void ResetTransform()
@@ -317,46 +260,37 @@ public sealed class RenderContext : IDisposable
             NativeMethods.RenderContext_SetStroke(Handle, &native));
     }
 
-    public unsafe void FillRect(Rect rect)
+    public unsafe void FillRect(in Rect rect)
     {
-        var native = new VelloRect
+        ref Rect rectRef = ref Unsafe.AsRef(in rect);
+        ref VelloRect native = ref Unsafe.As<Rect, VelloRect>(ref rectRef);
+        fixed (VelloRect* ptr = &native)
         {
-            X0 = rect.X0,
-            Y0 = rect.Y0,
-            X1 = rect.X1,
-            Y1 = rect.Y1
-        };
-
-        VelloException.ThrowIfError(
-            NativeMethods.RenderContext_FillRect(Handle, &native));
+            VelloException.ThrowIfError(
+                NativeMethods.RenderContext_FillRect(Handle, ptr));
+        }
     }
 
-    public unsafe void StrokeRect(Rect rect)
+    public unsafe void StrokeRect(in Rect rect)
     {
-        var native = new VelloRect
+        ref Rect rectRef = ref Unsafe.AsRef(in rect);
+        ref VelloRect native = ref Unsafe.As<Rect, VelloRect>(ref rectRef);
+        fixed (VelloRect* ptr = &native)
         {
-            X0 = rect.X0,
-            Y0 = rect.Y0,
-            X1 = rect.X1,
-            Y1 = rect.Y1
-        };
-
-        VelloException.ThrowIfError(
-            NativeMethods.RenderContext_StrokeRect(Handle, &native));
+            VelloException.ThrowIfError(
+                NativeMethods.RenderContext_StrokeRect(Handle, ptr));
+        }
     }
 
-    public unsafe void FillBlurredRoundedRect(Rect rect, float radius, float stdDev)
+    public unsafe void FillBlurredRoundedRect(in Rect rect, float radius, float stdDev)
     {
-        var native = new VelloRect
+        ref Rect rectRef = ref Unsafe.AsRef(in rect);
+        ref VelloRect native = ref Unsafe.As<Rect, VelloRect>(ref rectRef);
+        fixed (VelloRect* ptr = &native)
         {
-            X0 = rect.X0,
-            Y0 = rect.Y0,
-            X1 = rect.X1,
-            Y1 = rect.Y1
-        };
-
-        VelloException.ThrowIfError(
-            NativeMethods.RenderContext_FillBlurredRoundedRect(Handle, &native, radius, stdDev));
+            VelloException.ThrowIfError(
+                NativeMethods.RenderContext_FillBlurredRoundedRect(Handle, ptr, radius, stdDev));
+        }
     }
 
     public void FillPath(BezPath path)
@@ -387,22 +321,7 @@ public sealed class RenderContext : IDisposable
         if (glyphs.IsEmpty)
             return;
 
-        // Use stack allocation for typical text rendering (≤256 glyphs = 3KB)
-        const int StackAllocThreshold = 256;
-        Span<VelloGlyph> nativeGlyphs = glyphs.Length <= StackAllocThreshold
-            ? stackalloc VelloGlyph[glyphs.Length]
-            : new VelloGlyph[glyphs.Length];
-
-        // Convert to native format
-        for (int i = 0; i < glyphs.Length; i++)
-        {
-            nativeGlyphs[i] = new VelloGlyph
-            {
-                Id = glyphs[i].Id,
-                X = glyphs[i].X,
-                Y = glyphs[i].Y
-            };
-        }
+        ReadOnlySpan<VelloGlyph> nativeGlyphs = MemoryMarshal.Cast<Glyph, VelloGlyph>(glyphs);
 
         fixed (VelloGlyph* glyphsPtr = nativeGlyphs)
         {
@@ -434,22 +353,7 @@ public sealed class RenderContext : IDisposable
         if (glyphs.IsEmpty)
             return;
 
-        // Use stack allocation for typical text rendering (≤256 glyphs = 3KB)
-        const int StackAllocThreshold = 256;
-        Span<VelloGlyph> nativeGlyphs = glyphs.Length <= StackAllocThreshold
-            ? stackalloc VelloGlyph[glyphs.Length]
-            : new VelloGlyph[glyphs.Length];
-
-        // Convert to native format
-        for (int i = 0; i < glyphs.Length; i++)
-        {
-            nativeGlyphs[i] = new VelloGlyph
-            {
-                Id = glyphs[i].Id,
-                X = glyphs[i].X,
-                Y = glyphs[i].Y
-            };
-        }
+        ReadOnlySpan<VelloGlyph> nativeGlyphs = MemoryMarshal.Cast<Glyph, VelloGlyph>(glyphs);
 
         fixed (VelloGlyph* glyphsPtr = nativeGlyphs)
         {
@@ -484,23 +388,34 @@ public sealed class RenderContext : IDisposable
         if (text.Length == 0)
             return;
 
-        // Use stack allocation for typical text (≤256 chars = 3KB)
         const int StackAllocThreshold = 256;
+        Glyph[]? rentedGlyphs = null;
         Span<Glyph> glyphs = text.Length <= StackAllocThreshold
             ? stackalloc Glyph[text.Length]
-            : new Glyph[text.Length];
+            : default;
 
-        // Convert text to glyphs using zero-allocation Span API
-        int glyphCount = font.TextToGlyphs(text, glyphs);
-
-        // Offset all glyphs by the provided position
-        for (int i = 0; i < glyphCount; i++)
+        if (glyphs == default)
         {
-            glyphs[i] = new Glyph(glyphs[i].Id, glyphs[i].X + (float)x, glyphs[i].Y + (float)y);
+            rentedGlyphs = ArrayPool<Glyph>.Shared.Rent(text.Length);
+            glyphs = rentedGlyphs.AsSpan(0, text.Length);
         }
 
-        // Render using zero-allocation Span API
-        FillGlyphs(font, fontSize, glyphs.Slice(0, glyphCount));
+        try
+        {
+            int glyphCount = font.TextToGlyphs(text, glyphs);
+
+            for (int i = 0; i < glyphCount; i++)
+            {
+                glyphs[i] = new Glyph(glyphs[i].Id, glyphs[i].X + (float)x, glyphs[i].Y + (float)y);
+            }
+
+            FillGlyphs(font, fontSize, glyphs[..glyphCount]);
+        }
+        finally
+        {
+            if (rentedGlyphs is not null)
+                ArrayPool<Glyph>.Shared.Return(rentedGlyphs, clearArray: false);
+        }
     }
 
     /// <summary>
@@ -520,23 +435,34 @@ public sealed class RenderContext : IDisposable
         if (text.Length == 0)
             return;
 
-        // Use stack allocation for typical text (≤256 chars = 3KB)
         const int StackAllocThreshold = 256;
+        Glyph[]? rentedGlyphs = null;
         Span<Glyph> glyphs = text.Length <= StackAllocThreshold
             ? stackalloc Glyph[text.Length]
-            : new Glyph[text.Length];
+            : default;
 
-        // Convert text to glyphs using zero-allocation Span API
-        int glyphCount = font.TextToGlyphs(text, glyphs);
-
-        // Offset all glyphs by the provided position
-        for (int i = 0; i < glyphCount; i++)
+        if (glyphs == default)
         {
-            glyphs[i] = new Glyph(glyphs[i].Id, glyphs[i].X + (float)x, glyphs[i].Y + (float)y);
+            rentedGlyphs = ArrayPool<Glyph>.Shared.Rent(text.Length);
+            glyphs = rentedGlyphs.AsSpan(0, text.Length);
         }
 
-        // Render using zero-allocation Span API
-        StrokeGlyphs(font, fontSize, glyphs.Slice(0, glyphCount));
+        try
+        {
+            int glyphCount = font.TextToGlyphs(text, glyphs);
+
+            for (int i = 0; i < glyphCount; i++)
+            {
+                glyphs[i] = new Glyph(glyphs[i].Id, glyphs[i].X + (float)x, glyphs[i].Y + (float)y);
+            }
+
+            StrokeGlyphs(font, fontSize, glyphs[..glyphCount]);
+        }
+        finally
+        {
+            if (rentedGlyphs is not null)
+                ArrayPool<Glyph>.Shared.Return(rentedGlyphs, clearArray: false);
+        }
     }
 
     public void Flush()
@@ -598,20 +524,15 @@ public sealed class RenderContext : IDisposable
             native.M13, native.M23);
     }
 
-    public unsafe void SetPaintTransform(Affine transform)
+    public unsafe void SetPaintTransform(in Affine transform)
     {
-        var native = new VelloAffine
+        ref Affine transformRef = ref Unsafe.AsRef(in transform);
+        ref VelloAffine native = ref Unsafe.As<Affine, VelloAffine>(ref transformRef);
+        fixed (VelloAffine* ptr = &native)
         {
-            M11 = transform.M11,
-            M12 = transform.M12,
-            M13 = transform.M13,
-            M21 = transform.M21,
-            M22 = transform.M22,
-            M23 = transform.M23
-        };
-
-        VelloException.ThrowIfError(
-            NativeMethods.RenderContext_SetPaintTransform(Handle, &native));
+            VelloException.ThrowIfError(
+                NativeMethods.RenderContext_SetPaintTransform(Handle, ptr));
+        }
     }
 
     public unsafe Affine GetPaintTransform()
@@ -740,7 +661,7 @@ public sealed class RenderContext : IDisposable
         if (recording == null) throw new ArgumentNullException(nameof(recording));
         if (recordAction == null) throw new ArgumentNullException(nameof(recordAction));
 
-        var handle = GCHandle.Alloc(recordAction);
+        nint userData = recording.PrepareCallback(recordAction);
         try
         {
             delegate* unmanaged[Cdecl]<nint, nint, void> callback = &RecordCallback;
@@ -749,20 +670,19 @@ public sealed class RenderContext : IDisposable
                     Handle,
                     recording.Handle,
                     callback,
-                    GCHandle.ToIntPtr(handle)));
+                    userData));
         }
         finally
         {
-            handle.Free();
+            recording.ReleaseCallback();
         }
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     private static void RecordCallback(nint userData, nint recorderHandle)
     {
-        var action = (Action<Recorder>)GCHandle.FromIntPtr(userData).Target!;
-        var recorder = new Recorder(recorderHandle);
-        action(recorder);
+        var state = (Recording.RecordingCallbackState)GCHandle.FromIntPtr(userData).Target!;
+        state.Invoke(recorderHandle);
     }
 
     /// <summary>

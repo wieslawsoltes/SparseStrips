@@ -1,6 +1,7 @@
 // Copyright 2025 Wieslaw Soltes
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+using System.Runtime.CompilerServices;
 using Vello.Geometry;
 using Vello.Native;
 
@@ -26,32 +27,28 @@ public sealed class Recorder
     /// Records a fill rectangle operation.
     /// </summary>
     /// <param name="rect">The rectangle to fill.</param>
-    public unsafe void FillRect(Rect rect)
+    public unsafe void FillRect(in Rect rect)
     {
-        var velloRect = new VelloRect
+        ref Rect rectRef = ref Unsafe.AsRef(in rect);
+        ref VelloRect native = ref Unsafe.As<Rect, VelloRect>(ref rectRef);
+        fixed (VelloRect* ptr = &native)
         {
-            X0 = rect.X0,
-            Y0 = rect.Y0,
-            X1 = rect.X1,
-            Y1 = rect.Y1
-        };
-        NativeMethods.Recorder_FillRect(_handle, &velloRect);
+            NativeMethods.Recorder_FillRect(_handle, ptr);
+        }
     }
 
     /// <summary>
     /// Records a stroke rectangle operation.
     /// </summary>
     /// <param name="rect">The rectangle to stroke.</param>
-    public unsafe void StrokeRect(Rect rect)
+    public unsafe void StrokeRect(in Rect rect)
     {
-        var velloRect = new VelloRect
+        ref Rect rectRef = ref Unsafe.AsRef(in rect);
+        ref VelloRect native = ref Unsafe.As<Rect, VelloRect>(ref rectRef);
+        fixed (VelloRect* ptr = &native)
         {
-            X0 = rect.X0,
-            Y0 = rect.Y0,
-            X1 = rect.X1,
-            Y1 = rect.Y1
-        };
-        NativeMethods.Recorder_StrokeRect(_handle, &velloRect);
+            NativeMethods.Recorder_StrokeRect(_handle, ptr);
+        }
     }
 
     /// <summary>

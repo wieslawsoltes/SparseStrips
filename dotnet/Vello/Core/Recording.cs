@@ -1,6 +1,7 @@
 // Copyright 2025 Wieslaw Soltes
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+using System.Runtime.InteropServices;
 using Vello.Native;
 
 namespace Vello;
@@ -16,6 +17,8 @@ public sealed class Recording : IDisposable
 {
     private nint _handle;
     private bool _disposed;
+    private readonly RecordingCallbackState _callbackState;
+    private GCHandle _callbackHandle;
 
     /// <summary>
     /// Creates a new empty recording.
@@ -27,6 +30,9 @@ public sealed class Recording : IDisposable
         {
             throw new InvalidOperationException("Failed to create recording");
         }
+
+        _callbackState = new RecordingCallbackState();
+        _callbackHandle = GCHandle.Alloc(_callbackState);
     }
 
     /// <summary>
@@ -79,6 +85,11 @@ public sealed class Recording : IDisposable
                 NativeMethods.Recording_Free(_handle);
                 _handle = nint.Zero;
             }
+            if (_callbackHandle.IsAllocated)
+            {
+                _callbackState.Clear();
+                _callbackHandle.Free();
+            }
             _disposed = true;
         }
         GC.SuppressFinalize(this);
@@ -90,5 +101,36 @@ public sealed class Recording : IDisposable
     ~Recording()
     {
         Dispose();
+    }
+
+    internal nint PrepareCallback(Action<Recorder> callback)
+    {
+        ThrowIfDisposed();
+        _callbackState.Set(callback);
+        return GCHandle.ToIntPtr(_callbackHandle);
+    }
+
+    internal void ReleaseCallback()
+    {
+        _callbackState.Clear();
+    }
+
+    internal sealed class RecordingCallbackState
+    {
+        private Action<Recorder>? _callback;
+
+        public void Set(Action<Recorder> callback) => _callback = callback;
+
+        public void Clear() => _callback = null;
+
+        public void Invoke(nint recorderHandle)
+        {
+            var callback = _callback;
+            if (callback is null)
+                return;
+
+            var recorder = new Recorder(recorderHandle);
+            callback(recorder);
+        }
     }
 }
