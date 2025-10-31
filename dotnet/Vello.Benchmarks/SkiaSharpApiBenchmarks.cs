@@ -13,7 +13,7 @@ namespace Vello.Benchmarks;
 [MemoryDiagnoser]
 [GroupBenchmarksBy(BenchmarkDotNet.Configs.BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
-public class SkiaSharpBenchmarks
+public class SkiaSharpApiBenchmarks
 {
     // Standard benchmark size
     private const int Width = 1920;

@@ -19,7 +19,7 @@ namespace Vello.Benchmarks;
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
-public class ApiBenchmarks
+public class VelloApiBenchmarks
 {
     // Standard benchmark size
     private const ushort Width = 1920;
