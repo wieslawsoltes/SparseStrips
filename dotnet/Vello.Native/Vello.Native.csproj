@@ -9,71 +9,61 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <!-- Define native library paths -->
+  <!-- Define native library paths based on configuration -->
   <PropertyGroup>
     <VelloFfiRoot>$(MSBuildProjectDirectory)/../../vello_cpu_ffi</VelloFfiRoot>
-    <VelloFfiRelease>$(VelloFfiRoot)/target/release</VelloFfiRelease>
-    <VelloFfiDebug>$(VelloFfiRoot)/target/debug</VelloFfiDebug>
+    <!-- Use debug build for Debug configuration, release build otherwise -->
+    <VelloFfiBuildDir Condition="'$(Configuration)' == 'Debug'">$(VelloFfiRoot)/target/debug</VelloFfiBuildDir>
+    <VelloFfiBuildDir Condition="'$(Configuration)' != 'Debug'">$(VelloFfiRoot)/target/release</VelloFfiBuildDir>
   </PropertyGroup>
 
-  <!-- Determine which native library to use (release first, then debug) -->
+  <!-- Copy native library based on configuration -->
   <ItemGroup>
-    <!-- Windows -->
-    <Content Include="$(VelloFfiRelease)/vello_cpu_ffi.dll"
-             Condition="Exists('$(VelloFfiRelease)/vello_cpu_ffi.dll')"
+    <!-- Copy to output root for direct loading (development/testing) -->
+    <None Include="$(VelloFfiBuildDir)/*vello_cpu_ffi.*"
+          Condition="Exists('$(VelloFfiBuildDir)')"
+          CopyToOutputDirectory="PreserveNewest"
+          Visible="false" />
+
+    <!-- Also copy to runtime-specific paths for NuGet packaging -->
+    <!-- Windows x64 -->
+    <Content Include="$(VelloFfiBuildDir)/vello_cpu_ffi.dll"
+             Condition="Exists('$(VelloFfiBuildDir)/vello_cpu_ffi.dll')"
              Link="runtimes/win-x64/native/vello_cpu_ffi.dll"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
-    <Content Include="$(VelloFfiDebug)/vello_cpu_ffi.dll"
-             Condition="!Exists('$(VelloFfiRelease)/vello_cpu_ffi.dll') And Exists('$(VelloFfiDebug)/vello_cpu_ffi.dll')"
-             Link="runtimes/win-x64/native/vello_cpu_ffi.dll"
+
+    <!-- Windows ARM64 -->
+    <Content Include="$(VelloFfiBuildDir)/vello_cpu_ffi.dll"
+             Condition="Exists('$(VelloFfiBuildDir)/vello_cpu_ffi.dll')"
+             Link="runtimes/win-arm64/native/vello_cpu_ffi.dll"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- macOS ARM64 -->
-    <Content Include="$(VelloFfiRelease)/libvello_cpu_ffi.dylib"
-             Condition="Exists('$(VelloFfiRelease)/libvello_cpu_ffi.dylib')"
-             Link="runtimes/osx-arm64/native/libvello_cpu_ffi.dylib"
-             CopyToOutputDirectory="PreserveNewest"
-             Visible="false" />
-    <Content Include="$(VelloFfiDebug)/libvello_cpu_ffi.dylib"
-             Condition="!Exists('$(VelloFfiRelease)/libvello_cpu_ffi.dylib') And Exists('$(VelloFfiDebug)/libvello_cpu_ffi.dylib')"
+    <Content Include="$(VelloFfiBuildDir)/libvello_cpu_ffi.dylib"
+             Condition="Exists('$(VelloFfiBuildDir)/libvello_cpu_ffi.dylib')"
              Link="runtimes/osx-arm64/native/libvello_cpu_ffi.dylib"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- macOS x64 -->
-    <Content Include="$(VelloFfiRelease)/libvello_cpu_ffi.dylib"
-             Condition="Exists('$(VelloFfiRelease)/libvello_cpu_ffi.dylib')"
-             Link="runtimes/osx-x64/native/libvello_cpu_ffi.dylib"
-             CopyToOutputDirectory="PreserveNewest"
-             Visible="false" />
-    <Content Include="$(VelloFfiDebug)/libvello_cpu_ffi.dylib"
-             Condition="!Exists('$(VelloFfiRelease)/libvello_cpu_ffi.dylib') And Exists('$(VelloFfiDebug)/libvello_cpu_ffi.dylib')"
+    <Content Include="$(VelloFfiBuildDir)/libvello_cpu_ffi.dylib"
+             Condition="Exists('$(VelloFfiBuildDir)/libvello_cpu_ffi.dylib')"
              Link="runtimes/osx-x64/native/libvello_cpu_ffi.dylib"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- Linux x64 -->
-    <Content Include="$(VelloFfiRelease)/libvello_cpu_ffi.so"
-             Condition="Exists('$(VelloFfiRelease)/libvello_cpu_ffi.so')"
-             Link="runtimes/linux-x64/native/libvello_cpu_ffi.so"
-             CopyToOutputDirectory="PreserveNewest"
-             Visible="false" />
-    <Content Include="$(VelloFfiDebug)/libvello_cpu_ffi.so"
-             Condition="!Exists('$(VelloFfiRelease)/libvello_cpu_ffi.so') And Exists('$(VelloFfiDebug)/libvello_cpu_ffi.so')"
+    <Content Include="$(VelloFfiBuildDir)/libvello_cpu_ffi.so"
+             Condition="Exists('$(VelloFfiBuildDir)/libvello_cpu_ffi.so')"
              Link="runtimes/linux-x64/native/libvello_cpu_ffi.so"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- Linux ARM64 -->
-    <Content Include="$(VelloFfiRelease)/libvello_cpu_ffi.so"
-             Condition="Exists('$(VelloFfiRelease)/libvello_cpu_ffi.so')"
-             Link="runtimes/linux-arm64/native/libvello_cpu_ffi.so"
-             CopyToOutputDirectory="PreserveNewest"
-             Visible="false" />
-    <Content Include="$(VelloFfiDebug)/libvello_cpu_ffi.so"
-             Condition="!Exists('$(VelloFfiRelease)/libvello_cpu_ffi.so') And Exists('$(VelloFfiDebug)/libvello_cpu_ffi.so')"
+    <Content Include="$(VelloFfiBuildDir)/libvello_cpu_ffi.so"
+             Condition="Exists('$(VelloFfiBuildDir)/libvello_cpu_ffi.so')"
              Link="runtimes/linux-arm64/native/libvello_cpu_ffi.so"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />

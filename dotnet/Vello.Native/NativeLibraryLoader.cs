@@ -54,16 +54,13 @@ public static class NativeLibraryLoader
     private static nint LoadNativeLibrary()
     {
         string libraryName = GetLibraryName();
-        
+        nint handle;
+
         // Try multiple search strategies
-        
-        // Strategy 1: Let NativeLibrary.TryLoad use default search paths
-        if (NativeLibrary.TryLoad(libraryName, Assembly.GetExecutingAssembly(), null, out nint handle))
-            return handle;
-        
-        // Strategy 2: Try runtime-specific paths
+
+        // Strategy 1: Try runtime-specific paths first (where csproj copies libraries)
         string[] searchPaths = GetSearchPaths(libraryName);
-        
+
         foreach (var path in searchPaths)
         {
             if (File.Exists(path))
@@ -72,7 +69,11 @@ public static class NativeLibraryLoader
                     return handle;
             }
         }
-        
+
+        // Strategy 2: Let NativeLibrary.TryLoad use default search paths
+        if (NativeLibrary.TryLoad(libraryName, Assembly.GetExecutingAssembly(), null, out handle))
+            return handle;
+
         // Strategy 3: Try loading from assembly directory
         string? assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         if (assemblyDir != null)
@@ -84,7 +85,7 @@ public static class NativeLibraryLoader
                     return handle;
             }
         }
-        
+
         return 0;
     }
     

@@ -11,10 +11,12 @@ public static partial class NativeMethods
     private const string LibraryName = "vello_cpu_ffi";
 
     /// <summary>
-    /// Module initializer to ensure native library is loaded before any P/Invoke calls.
+    /// Module initializer to ensure native library loader is registered before any P/Invoke calls.
+    /// Note: With LibraryImport, the module initializer may not be called before P/Invoke resolution,
+    /// so we rely on the native library being copied to the output directory root.
     /// </summary>
     [ModuleInitializer]
-    public static void Initialize()
+    internal static void Initialize()
     {
         NativeLibraryLoader.EnsureLoaded();
     }
