@@ -72,13 +72,14 @@ internal struct VelloStroke
 /// <summary>
 /// Render settings
 /// </summary>
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 internal struct VelloRenderSettings
 {
-    public VelloSimdLevel Level;
-    public ushort NumThreads;
-    public VelloRenderMode RenderMode;
-    private byte _padding;
+    public VelloSimdLevel Level;      // Offset 0, 1 byte
+    private byte _padding1;            // Offset 1, alignment padding
+    public ushort NumThreads;          // Offset 2-3, 2 bytes
+    public VelloRenderMode RenderMode; // Offset 4, 1 byte
+    private byte _padding2;            // Offset 5, trailing padding
 }
 
 /// <summary>
