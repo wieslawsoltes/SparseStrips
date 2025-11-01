@@ -501,4 +501,16 @@ public static partial class NativeMethods
     [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_recorder_set_paint_solid")]
     public static partial int Recorder_SetPaintSolid(nint recorder, byte r, byte g, byte b, byte a);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_set_stroke")]
+    public static unsafe partial int Recorder_SetStroke(nint recorder, VelloStroke* stroke);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_set_transform")]
+    public static unsafe partial int Recorder_SetTransform(nint recorder, VelloAffine* transform);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_set_fill_rule")]
+    public static partial int Recorder_SetFillRule(nint recorder, VelloFillRule fillRule);
 }

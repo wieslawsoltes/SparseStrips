@@ -1,0 +1,6 @@
+Inter-Regular.ttf
+Copyright (c) 2020 The Inter Project Authors
+Licensed under the SIL Open Font License, Version 1.1
+https://scripts.sil.org/OFL
+
+NOTE: font binary to be added. Download from https://github.com/rsms/inter/releases/latest

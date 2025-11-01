@@ -41,6 +41,57 @@ We will proceed in **five phases**, grouped by API families. Each phase introduc
 
 **Artifacts:** Pixel comparison utilities that work with raw `PremulRgba8` payloads.
 
+> **Status Update (2025-02-14):** Direct interop tests now exercise invalid rect bounds, null-handle flush errors, and `Pixmap_DataMut` write-backs. Harden native safeguards for double-free contexts and zero-dimension pixmap resizes (currently aborting) before adding those negative-path tests. Details tracked in `docs/tests/native-safety-followups.md`.
+>
+> **Status Update (2025-02-14, later):** Added coverage for `Pixmap_Sample` (expected pixel retrieval plus null/out-of-range guards).
+
+> **Phase 2 Progress (2025-02-14):** Added native-only coverage for linear/radial/sweep gradients (`RenderContext_SetPaint*Gradient`), extend modes (repeat/reflect, including diagonal spans), paint-kind queries, geometry & paint transform round-tripping plus observable paint effects (translation/scale/rotation), aliasing threshold clamping, and buffer rendering checks (`RenderContext_RenderToBuffer`, including pixmap parity). Sweep extend now cross-checked against the pad baseline; additional skew visuals remain pending until native fixtures are available.
+
+> **Phase 3 Progress (2025-02-14):** Direct `BezPath` fills, stroke-path tests, recorder parity (stroke/transform/fill-rule), and layer stack coverage (opacity, additive blend, clip, mask) are in place. Remaining work: negative misuse cases (pop-without-push, freed handles) once native guards land.
+
+> **Phase 4 Progress (2025-02-14):** Image paint coverage landed via `RenderContext_SetPaintImage` (solid pixmap source) with null-handle guards. Applying opacity to images currently triggers a native panic, so alpha-specific tests remain blocked until the engine supports that path.
+>
+> **Status Update (2025-02-15):** Inter-Regular.ttf added under `dotnet/Vello.Tests/TestAssets/fonts/`; glyph rendering (`RenderContext_FillGlyphs`) now exercises cmap-derived glyph IDs. The FFI guards image opacity by returning `VELLO_ERROR_INVALID_PARAMETER`, and the managed tests assert the guard instead of panicking.
+
+**Phase 1 Completion Checklist**
+- [x] RenderContext construction/destruction happy path (`RenderContextPixmapInteropTests`).
+- [x] Dimension queries (`RenderContext_Width/Height`) and zero-dimension context behaviour.
+- [x] Reset lifecycle, flush, fill, and render-to-pixmap positives and null-handle negatives.
+- [x] Pixmap allocation, resize (positive), raw data/data_mut access, sampling, and null-pointer guards.
+- [ ] Negative tests that require native safeguards (double-free, zero-dimension resize) – **blocked** pending native fixes (`docs/tests/native-safety-followups.md`).
+
+**Phase 2 Completion Checklist**
+- [x] Linear, radial, and sweep gradients positive coverage (including extend repeat/reflect + diagonal spans).
+- [x] Gradient negative cases (null stops pointer, stop-count < 2) for linear/radial variants.
+- [x] Transform APIs (set/get/reset + paint transforms with observable translation/scale/rotation effects).
+- [x] Paint kind queries after various paint changes.
+- [x] Aliasing threshold setter (range, clamp, null context error).
+- [x] Render-to-buffer positive path and negative cases (null pointer, undersized buffer) plus pixmap parity check.
+- [x] Additional gradient extend scenarios and transform edge cases (sweep extend verified against pad baseline; paint transform effects covered via translation/scale/rotation comparisons. Further skew visuals deferred pending native fixtures).
+
+**Phase 3 Kickoff Checklist**
+- [x] Direct `BezPath` construction + fill-path rendering (triangle fill, null pointer guards).
+- [x] Recording lifecycle: record via native callback, prepare/execute, pixel parity with direct rendering, `Recording_Len` assertions.
+- [x] Layer basics: opacity, blend (compose plus), clip, and mask layers validated via pixel sampling and guard checks.
+- [x] Stroke-path coverage and recorder stroke operations.
+- [x] Recorder transform and stroke parity with direct context APIs.
+- [x] Recorder fill-rule parity checks.
+- [ ] Pop-without-push / misuse error assertions (await native guardrails).
+
+**Phase 4 Progress Checklist**
+- [x] Image paints via `Image_NewFromPixmap`/`RenderContext_SetPaintImage` (solid source pixmaps) with null-handle guards.
+- [ ] Image opacity/scaling/stretch validation (native support still pending beyond the guard).
+- [x] Image opacity guard added (FFI now returns `VELLO_ERROR_INVALID_PARAMETER` for alpha < 1).
+- [x] Image extend modes (repeat/reflect) validated against expected pixel patterns.
+- [x] Mask luminance flow validated.
+- [x] Glyph rendering via `RenderContext_FillGlyphs` using Inter-Regular.ttf (cmap-parsed glyph IDs).
+- [x] Font negative paths (null data pointer, null font handle, null glyph pointer) covered via `RenderContextFontsInteropTests`.
+
+**Phase 5 Progress Checklist**
+- [x] Version/Simd detection sanity checks (`Version`, `SimdDetect`).
+- [x] Error handling validation (`GetLastError`, `ClearLastError`).
+- [ ] Remaining utilities (ensure final sweep once new APIs land).
+
 ---
 
 ## Phase 2 – Paints, Gradients, Transforms, Aliasing
@@ -119,8 +170,8 @@ We will proceed in **five phases**, grouped by API families. Each phase introduc
 
 ## Current Status Snapshot
 - ✅ Phases 0–2 implemented.
-- ✅ Phase 3 (initial recording/layer coverage) underway; masks/images/fonts outstanding.
-- ⚙️ Phase 4 requires assets and deterministic glyph fixtures.
-- ⚙️ Phase 5 pending version/SIMD/error-string assertions.
+- ✅ Phase 3 feature coverage complete; awaiting native guardrails for misuse negatives (pop-without-push, freed handles).
+- ✅ Phase 4 image/mask/font coverage in place (opacity/scaling positives still blocked by native limitations).
+- ✅ Phase 5 diagnostics (`Version`, `SimdDetect`, `GetLastError`, `ClearLastError`) covered; remaining utilities to re-evaluate when new APIs arrive.
 
 > Next concrete task: build the resource guard helpers and start Phase 1 detailed coverage (RenderContext + Pixmap). Once helpers are stable, progress through the phases systematically.

@@ -5,7 +5,7 @@
 
 use crate::error::set_last_error;
 use crate::{ffi_catch, ffi_catch_ptr};
-use crate::types::{VelloExtend, VelloImageQuality, VelloPixmap, VELLO_ERROR_NULL_POINTER, VELLO_OK};
+use crate::types::{VelloExtend, VelloImageQuality, VelloPixmap, VELLO_ERROR_INVALID_PARAMETER, VELLO_ERROR_NULL_POINTER, VELLO_OK};
 use std::os::raw::c_int;
 use std::sync::Arc;
 use vello_cpu::{Pixmap, RenderContext};
@@ -90,6 +90,12 @@ pub extern "C" fn vello_render_context_set_paint_image(
     ffi_catch!({
         let ctx = unsafe { &mut *(ctx as *mut RenderContext) };
         let image = unsafe { &*(image as *const Image) };
+
+        if (image.sampler.alpha - 1.0).abs() > f32::EPSILON {
+            set_last_error("Image opacity is not supported yet");
+            return VELLO_ERROR_INVALID_PARAMETER;
+        }
+
         ctx.set_paint(image.clone());
         VELLO_OK
     })
