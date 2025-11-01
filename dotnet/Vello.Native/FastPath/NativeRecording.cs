@@ -52,6 +52,42 @@ public ref struct NativeRecording : IDisposable
     }
 
     /// <summary>
+    /// Gets a value indicating whether the recording owns cached strips.
+    /// </summary>
+    public bool HasCachedStrips
+    {
+        get
+        {
+            EnsureNotDisposed();
+            return NativeMethods.Recording_HasCachedStrips(_handle) != 0;
+        }
+    }
+
+    /// <summary>
+    /// Gets the number of cached strips stored on the native recording.
+    /// </summary>
+    public nuint StripCount
+    {
+        get
+        {
+            EnsureNotDisposed();
+            return NativeMethods.Recording_StripCount(_handle);
+        }
+    }
+
+    /// <summary>
+    /// Gets the number of cached alpha bytes stored on the native recording.
+    /// </summary>
+    public nuint AlphaByteCount
+    {
+        get
+        {
+            EnsureNotDisposed();
+            return NativeMethods.Recording_AlphaCount(_handle);
+        }
+    }
+
+    /// <summary>
     /// Clears the recorded commands.
     /// </summary>
     public void Clear()

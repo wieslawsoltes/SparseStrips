@@ -3,6 +3,7 @@
 
 using Vello.Geometry;
 using Xunit;
+using System;
 
 namespace Vello.Tests;
 
@@ -112,5 +113,83 @@ public class RecordingTests
 
         ctx.PrepareRecording(recording);
         ctx.ExecuteRecording(recording);
+    }
+
+    [Fact]
+    public void Recording_ReportsCachedStripMetrics()
+    {
+        using var ctx = new RenderContext(128, 128);
+        using var recording = new Recording();
+
+        ctx.Record(recording, recorder =>
+        {
+            recorder.SetPaint(Color.Magenta);
+            recorder.FillRect(new Rect(10, 10, 90, 90));
+        });
+
+        Assert.False(recording.HasCachedStrips);
+        ulong stripsBefore = recording.StripCount;
+        ulong alphaBefore = recording.AlphaByteCount;
+
+        ctx.PrepareRecording(recording);
+
+        Assert.True(recording.HasCachedStrips);
+        Assert.True(recording.StripCount >= stripsBefore);
+        Assert.True(recording.AlphaByteCount >= alphaBefore);
+    }
+
+    [Fact]
+    public void Recorder_SupportsAdvancedTransformAndClipFlow()
+    {
+        using var ctx = new RenderContext(128, 128);
+        using var recording = new Recording();
+        using var clipPath = new BezPath();
+        using var strokePath = new BezPath();
+        using var pixmap = new Pixmap(128, 128);
+
+        clipPath
+            .MoveTo(new Point(20, 20))
+            .LineTo(new Point(108, 20))
+            .LineTo(new Point(108, 108))
+            .Close();
+
+        strokePath
+            .MoveTo(new Point(30, 30))
+            .LineTo(new Point(98, 98));
+
+        ctx.Record(recording, recorder =>
+        {
+            recorder.SetPaint(Color.Green);
+            recorder.SetStroke(new Stroke(width: 3f, join: Join.Round, startCap: Cap.Round, endCap: Cap.Round));
+            recorder.SetFillRule(FillRule.EvenOdd);
+            recorder.SetTransform(Affine.Translation(4, 6));
+            recorder.SetPaintTransform(Affine.Scale(0.75, 0.75));
+
+            recorder.PushClipLayer(clipPath);
+            recorder.FillRect(new Rect(0, 0, 96, 96));
+            recorder.StrokePath(strokePath);
+            recorder.PopLayer();
+            recorder.ResetPaintTransform();
+        });
+
+        ctx.PrepareRecording(recording);
+        ctx.ExecuteRecording(recording);
+        ctx.Flush();
+        ctx.RenderToPixmap(pixmap);
+
+        Assert.True(recording.Count > 0);
+        Assert.True(recording.HasCachedStrips);
+        ReadOnlySpan<byte> bytes = pixmap.GetBytes();
+        bool hasNonZero = false;
+        foreach (byte value in bytes)
+        {
+            if (value != 0)
+            {
+                hasNonZero = true;
+                break;
+            }
+        }
+
+        Assert.True(hasNonZero, "Expected recorded drawing to produce non-zero pixels.");
     }
 }

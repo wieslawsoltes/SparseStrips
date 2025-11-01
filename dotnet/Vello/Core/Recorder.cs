@@ -33,7 +33,8 @@ public sealed class Recorder
         ref VelloRect native = ref Unsafe.As<Rect, VelloRect>(ref rectRef);
         fixed (VelloRect* ptr = &native)
         {
-            NativeMethods.Recorder_FillRect(_handle, ptr);
+            VelloException.ThrowIfError(
+                NativeMethods.Recorder_FillRect(_handle, ptr));
         }
     }
 
@@ -47,7 +48,8 @@ public sealed class Recorder
         ref VelloRect native = ref Unsafe.As<Rect, VelloRect>(ref rectRef);
         fixed (VelloRect* ptr = &native)
         {
-            NativeMethods.Recorder_StrokeRect(_handle, ptr);
+            VelloException.ThrowIfError(
+                NativeMethods.Recorder_StrokeRect(_handle, ptr));
         }
     }
 
@@ -57,8 +59,9 @@ public sealed class Recorder
     /// <param name="path">The path to fill.</param>
     public void FillPath(BezPath path)
     {
-        if (path == null) throw new ArgumentNullException(nameof(path));
-        NativeMethods.Recorder_FillPath(_handle, path.Handle);
+        ArgumentNullException.ThrowIfNull(path);
+        VelloException.ThrowIfError(
+            NativeMethods.Recorder_FillPath(_handle, path.Handle));
     }
 
     /// <summary>
@@ -67,8 +70,9 @@ public sealed class Recorder
     /// <param name="path">The path to stroke.</param>
     public void StrokePath(BezPath path)
     {
-        if (path == null) throw new ArgumentNullException(nameof(path));
-        NativeMethods.Recorder_StrokePath(_handle, path.Handle);
+        ArgumentNullException.ThrowIfNull(path);
+        VelloException.ThrowIfError(
+            NativeMethods.Recorder_StrokePath(_handle, path.Handle));
     }
 
     /// <summary>
@@ -77,6 +81,85 @@ public sealed class Recorder
     /// <param name="color">The color to set.</param>
     public void SetPaint(Color color)
     {
-        NativeMethods.Recorder_SetPaintSolid(_handle, color.R, color.G, color.B, color.A);
+        VelloException.ThrowIfError(
+            NativeMethods.Recorder_SetPaintSolid(_handle, color.R, color.G, color.B, color.A));
+    }
+
+    /// <summary>
+    /// Applies stroke parameters to subsequent stroke operations.
+    /// </summary>
+    /// <param name="stroke">Stroke parameters to use.</param>
+    public unsafe void SetStroke(Stroke stroke)
+    {
+        var native = stroke.ToNative();
+        VelloException.ThrowIfError(
+            NativeMethods.Recorder_SetStroke(_handle, &native));
+    }
+
+    /// <summary>
+    /// Sets the current transform for subsequent drawing operations.
+    /// </summary>
+    /// <param name="transform">Affine transform to apply.</param>
+    public unsafe void SetTransform(in Affine transform)
+    {
+        ref readonly VelloAffine native = ref Unsafe.As<Affine, VelloAffine>(ref Unsafe.AsRef(in transform));
+        fixed (VelloAffine* ptr = &native)
+        {
+            VelloException.ThrowIfError(
+                NativeMethods.Recorder_SetTransform(_handle, ptr));
+        }
+    }
+
+    /// <summary>
+    /// Sets the fill rule used for fill operations.
+    /// </summary>
+    /// <param name="fillRule">Fill rule to apply.</param>
+    public void SetFillRule(FillRule fillRule)
+    {
+        VelloException.ThrowIfError(
+            NativeMethods.Recorder_SetFillRule(_handle, (VelloFillRule)fillRule));
+    }
+
+    /// <summary>
+    /// Sets the paint-space transform for gradient/image paints.
+    /// </summary>
+    /// <param name="transform">Affine transform applied to paint space.</param>
+    public unsafe void SetPaintTransform(in Affine transform)
+    {
+        ref readonly VelloAffine native = ref Unsafe.As<Affine, VelloAffine>(ref Unsafe.AsRef(in transform));
+        fixed (VelloAffine* ptr = &native)
+        {
+            VelloException.ThrowIfError(
+                NativeMethods.Recorder_SetPaintTransform(_handle, ptr));
+        }
+    }
+
+    /// <summary>
+    /// Resets the paint transform to identity.
+    /// </summary>
+    public void ResetPaintTransform()
+    {
+        VelloException.ThrowIfError(
+            NativeMethods.Recorder_ResetPaintTransform(_handle));
+    }
+
+    /// <summary>
+    /// Pushes a clip layer using the specified path.
+    /// </summary>
+    /// <param name="clipPath">The path defining the clip.</param>
+    public void PushClipLayer(BezPath clipPath)
+    {
+        ArgumentNullException.ThrowIfNull(clipPath);
+        VelloException.ThrowIfError(
+            NativeMethods.Recorder_PushClipLayer(_handle, clipPath.Handle));
+    }
+
+    /// <summary>
+    /// Pops the most recently pushed layer.
+    /// </summary>
+    public void PopLayer()
+    {
+        VelloException.ThrowIfError(
+            NativeMethods.Recorder_PopLayer(_handle));
     }
 }

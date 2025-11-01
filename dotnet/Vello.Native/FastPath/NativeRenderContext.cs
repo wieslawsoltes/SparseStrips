@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Vello.Native.FastPath;
 
@@ -11,6 +12,17 @@ namespace Vello.Native.FastPath;
 public ref struct NativeRenderContext : IDisposable
 {
     private nint _handle;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void RecordCallbackThunk(nint userData, nint recorderHandle);
+
+    /// <summary>
+    /// Delegate invoked for each recording callback invocation.
+    /// </summary>
+    public delegate void NativeRecorderCallback(ref NativeRecorder recorder);
+
+    private static readonly RecordCallbackThunk s_recordCallbackThunk = RecordCallback;
+    private static readonly nint s_recordCallbackPtr = Marshal.GetFunctionPointerForDelegate(s_recordCallbackThunk);
 
     /// <summary>
     /// Initializes a new render context for the given output dimensions.
@@ -177,6 +189,57 @@ public ref struct NativeRenderContext : IDisposable
     }
 
     /// <summary>
+    /// Records drawing commands into a native recording.
+    /// </summary>
+    public void Record(NativeRecording recording, NativeRecorderCallback callback)
+    {
+        EnsureNotDisposed();
+        ArgumentNullException.ThrowIfNull(callback);
+
+        nint recordingHandle = recording.Handle;
+        var handle = GCHandle.Alloc(callback);
+        nint userData = GCHandle.ToIntPtr(handle);
+        try
+        {
+            NativeResult.ThrowIfFailed(
+                NativeMethods.RenderContext_Record(
+                    _handle,
+                    recordingHandle,
+                    s_recordCallbackPtr,
+                    userData),
+                nameof(NativeMethods.RenderContext_Record));
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    /// <summary>
+    /// Optimizes a recording for later playback.
+    /// </summary>
+    public void PrepareRecording(NativeRecording recording)
+    {
+        EnsureNotDisposed();
+        nint recordingHandle = recording.Handle;
+        NativeResult.ThrowIfFailed(
+            NativeMethods.RenderContext_PrepareRecording(_handle, recordingHandle),
+            nameof(NativeMethods.RenderContext_PrepareRecording));
+    }
+
+    /// <summary>
+    /// Executes a previously recorded command stream.
+    /// </summary>
+    public void ExecuteRecording(NativeRecording recording)
+    {
+        EnsureNotDisposed();
+        nint recordingHandle = recording.Handle;
+        NativeResult.ThrowIfFailed(
+            NativeMethods.RenderContext_ExecuteRecording(_handle, recordingHandle),
+            nameof(NativeMethods.RenderContext_ExecuteRecording));
+    }
+
+    /// <summary>
     /// Sets a solid paint color.
     /// </summary>
     public void SetPaintSolid(byte r, byte g, byte b, byte a)
@@ -324,6 +387,17 @@ public ref struct NativeRenderContext : IDisposable
         if (_handle == nint.Zero)
         {
             throw new ObjectDisposedException(nameof(NativeRenderContext));
+        }
+    }
+
+    private static void RecordCallback(nint userData, nint recorderHandle)
+    {
+        var handle = GCHandle.FromIntPtr(userData);
+        if (handle.Target is NativeRecorderCallback callback)
+        {
+            var recorder = new NativeRecorder(recorderHandle);
+            callback(ref recorder);
+            recorder.Invalidate();
         }
     }
 }

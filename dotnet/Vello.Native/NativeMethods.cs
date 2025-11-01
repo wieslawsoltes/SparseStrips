@@ -466,6 +466,18 @@ public static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "vello_recording_len")]
     public static partial nuint Recording_Len(nint recording);
 
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recording_has_cached_strips")]
+    public static partial int Recording_HasCachedStrips(nint recording);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recording_strip_count")]
+    public static partial nuint Recording_StripCount(nint recording);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recording_alpha_count")]
+    public static partial nuint Recording_AlphaCount(nint recording);
+
     [LibraryImport(LibraryName, EntryPoint = "vello_render_context_record")]
     public static partial int RenderContext_Record(
         nint ctx,
@@ -513,4 +525,22 @@ public static partial class NativeMethods
     [SuppressGCTransition]
     [LibraryImport(LibraryName, EntryPoint = "vello_recorder_set_fill_rule")]
     public static partial int Recorder_SetFillRule(nint recorder, VelloFillRule fillRule);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_set_paint_transform")]
+    public static unsafe partial int Recorder_SetPaintTransform(
+        nint recorder,
+        VelloAffine* transform);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_reset_paint_transform")]
+    public static partial int Recorder_ResetPaintTransform(nint recorder);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_push_clip_layer")]
+    public static partial int Recorder_PushClipLayer(nint recorder, nint clipPath);
+
+    [SuppressGCTransition]
+    [LibraryImport(LibraryName, EntryPoint = "vello_recorder_pop_layer")]
+    public static partial int Recorder_PopLayer(nint recorder);
 }

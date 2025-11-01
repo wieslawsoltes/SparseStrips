@@ -58,6 +58,9 @@ class Program
         // Example 15: Image as paint
         Example15_ImageAsPaint();
 
+        // Example 16: Recording and replay
+        Example16_RecordingReplay();
+
         Console.WriteLine("\nAll examples completed successfully!");
     }
 
@@ -825,6 +828,65 @@ class Program
         Console.WriteLine($"    - Reflect extend mode (tiles mirror)");
         Console.WriteLine($"    - Low quality sampling (fast)");
         Console.WriteLine($"  Saved to: {outputPath}");
+        Console.WriteLine();
+    }
+
+    static void Example16_RecordingReplay()
+    {
+        Console.WriteLine("Example 16: Recording and Replay");
+        Console.WriteLine("--------------------------------");
+
+        using var context = new RenderContext(256, 256);
+        using var recording = new Recording();
+        using var pixmap = new Pixmap(256, 256);
+        using var clipPath = new BezPath();
+        using var strokePath = new BezPath();
+
+        clipPath
+            .MoveTo(48, 48)
+            .LineTo(208, 48)
+            .LineTo(208, 208)
+            .QuadTo(96, 192, 48, 128)
+            .Close();
+
+        strokePath
+            .MoveTo(0, 0)
+            .LineTo(64, 32)
+            .LineTo(32, 96)
+            .LineTo(96, 128);
+
+        context.Record(recording, recorder =>
+        {
+            recorder.SetPaint(new Color(0, 200, 255, 255));
+            recorder.SetStroke(new Stroke(
+                width: 4.0f,
+                join: Join.Round,
+                startCap: Cap.Round,
+                endCap: Cap.Round));
+            recorder.SetFillRule(FillRule.EvenOdd);
+
+            recorder.SetTransform(Affine.Translation(32, 32));
+            recorder.SetPaintTransform(Affine.Scale(0.75, 0.75));
+
+            recorder.PushClipLayer(clipPath);
+            recorder.FillRect(new Rect(0, 0, 160, 160));
+            recorder.StrokePath(strokePath);
+            recorder.PopLayer();
+
+            recorder.ResetPaintTransform();
+        });
+
+        Console.WriteLine($"  Cached strips before prepare? {recording.HasCachedStrips} (strips={recording.StripCount}, alpha={recording.AlphaByteCount})");
+
+        context.PrepareRecording(recording);
+
+        Console.WriteLine($"  Cached strips after prepare?  {recording.HasCachedStrips} (strips={recording.StripCount}, alpha={recording.AlphaByteCount})");
+
+        context.ExecuteRecording(recording);
+        context.Flush();
+        context.RenderToPixmap(pixmap);
+
+        Console.WriteLine($"  Rendered recorded scene into {pixmap.Width}x{pixmap.Height} pixmap");
         Console.WriteLine();
     }
 }

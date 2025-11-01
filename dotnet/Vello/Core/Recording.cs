@@ -48,12 +48,49 @@ public sealed class Recording : IDisposable
     }
 
     /// <summary>
+    /// Gets a value indicating whether the recording currently holds cached strips generated during preparation.
+    /// </summary>
+    public bool HasCachedStrips
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return NativeMethods.Recording_HasCachedStrips(_handle) != 0;
+        }
+    }
+
+    /// <summary>
+    /// Gets the number of cached strips stored with this recording.
+    /// </summary>
+    public ulong StripCount
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return (ulong)NativeMethods.Recording_StripCount(_handle);
+        }
+    }
+
+    /// <summary>
+    /// Gets the number of cached alpha bytes stored with this recording.
+    /// </summary>
+    public ulong AlphaByteCount
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return (ulong)NativeMethods.Recording_AlphaCount(_handle);
+        }
+    }
+
+    /// <summary>
     /// Clears all recorded commands.
     /// </summary>
     public void Clear()
     {
         ThrowIfDisposed();
-        NativeMethods.Recording_Clear(_handle);
+        VelloException.ThrowIfError(
+            NativeMethods.Recording_Clear(_handle));
     }
 
     internal nint Handle

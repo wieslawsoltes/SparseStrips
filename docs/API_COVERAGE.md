@@ -4,16 +4,16 @@
 
 ## Executive Summary
 
-All vello_cpu RenderContext methods have been implemented with full feature parity. The .NET bindings provide complete coverage of the vello_cpu API with 85 tests (81 active, 100% passing) and 15 working examples.
+All vello_cpu RenderContext methods have been implemented with full feature parity. The .NET bindings provide complete coverage of the vello_cpu API with 87 tests (83 active, 100% passing) and 16 working examples. Recording and replay primitives now surface cached-strip metrics and recorder transforms/clip helpers across P/Invoke, fast-path wrappers, managed wrappers, and samples.
 
 ## Test Results
 
 ```
-Total Tests:    85
-Active Tests:   81
-Passing:        81 (100%)
+Total Tests:    87
+Active Tests:   83
+Passing:        83 (100%)
 Disabled:       4 (non-critical inspection/debugging methods)
-Examples:       15 (100% working)
+Examples:       16 (100% working)
 ```
 
 ## Complete Feature Matrix
@@ -35,6 +35,13 @@ Examples:       15 (100% working)
 | Extend Pad | `Extend::Pad` | `GradientExtend.Pad` | Example 2 | ✅ | **Complete** |
 | Extend Repeat | `Extend::Repeat` | `GradientExtend.Repeat` | Example 2 | ✅ | **Complete** |
 | Extend Reflect | `Extend::Reflect` | `GradientExtend.Reflect` | Example 2 | ✅ | **Complete** |
+| **Recording & Replay** |
+| Record commands | `record(recording, callback)` | `RenderContext.Record()` / `NativeRenderContext.Record()` | Example 16 | ✅ | **Complete** |
+| Prepare cached strips | `prepare_recording(recording)` | `RenderContext.PrepareRecording()` / `NativeRenderContext.PrepareRecording()` | Example 16 | ✅ | **Complete** |
+| Execute recording | `execute_recording(recording)` | `RenderContext.ExecuteRecording()` / `NativeRenderContext.ExecuteRecording()` | Example 16 | ✅ | **Complete** |
+| Recorder paint & stroke helpers | `Recorder` setter APIs | `Recorder.SetPaint/SetStroke/SetTransform/SetPaintTransform/SetFillRule()` | Example 16 | ✅ | **Complete** |
+| Recorder clipping layers | `recorder.push_clip_layer()` / `recorder.pop_layer()` | `Recorder.PushClipLayer()/PopLayer()` | Example 16 | ✅ | **Complete** |
+| Recording cache metrics | `Recording::has_cached_strips`, `strip_count`, `alpha_count` | `Recording.HasCachedStrips`, `StripCount`, `AlphaByteCount` | Example 16 | ✅ | **Complete** |
 | **Blurred Rounded Rectangles** |
 | Fill blurred rect | `fill_blurred_rounded_rect()` | `FillBlurredRoundedRect()` | Example 11 | ✅ | **Complete** |
 | Radius parameter | `radius: f32` | `radius: float` | Example 11 | ✅ | **Complete** |
@@ -167,12 +174,12 @@ Examples:       15 (100% working)
 - `FontDataTests.cs` (120 lines, 10 tests)
 - `IntegrationTests.cs` (410 lines, 11 tests)
 
-**Total: 85 tests, ~1,700 lines of test code**
+**Total: 87 tests, ~1,720 lines of test code**
 
 ### Examples (`Vello.Samples`)
 
 **File:**
-- `Program.cs` (1,600 lines, 15 examples)
+- `Program.cs` (1,650 lines, 16 examples)
 
 **Examples:**
 1. Basic Rendering - Solid colors, rectangles
@@ -190,6 +197,7 @@ Examples:       15 (100% working)
 13. Text Rendering - All glyph types
 14. Mask Layers - Alpha and luminance
 15. Image as Paint - Extend modes and quality
+16. Recording & Replay - Cached strips, transforms, clipping
 
 ## API Usage Examples
 
@@ -458,14 +466,15 @@ dotnet run
   - ✅ High-level `DrawText()` API
   - ✅ Better error handling
   - ✅ Safer memory management
+  - ✅ Recording cache metrics and recorder helper APIs
 
 ### 📊 Statistics
 
-- **Total Code**: ~7,200 lines
-- **Rust FFI**: ~2,500 lines
-- **.NET Bindings**: ~3,000 lines
-- **Tests**: ~1,700 lines (85 tests, 95.3% passing)
-- **Examples**: 15 comprehensive examples
+- **Total Code**: ~7,250 lines
+- **Rust FFI**: ~2,520 lines
+- **.NET Bindings**: ~3,050 lines
+- **Tests**: ~1,720 lines (87 tests, 95.4% passing)
+- **Examples**: 16 comprehensive examples
 
 ### 🎉 Conclusion
 
