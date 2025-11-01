@@ -89,19 +89,19 @@ public class ComplexSceneBenchmarks
 
         ctx.SetStroke(stroke);
 
-        var random = new Random(42);
+        var rng = new DeterministicRng(42);
 
         for (int i = 0; i < ShapeCount; i++)
         {
-            double x = random.NextDouble() * (Width - 60);
-            double y = random.NextDouble() * (Height - 60);
-            double size = 10 + random.NextDouble() * 50;
+            double x = rng.NextDouble() * (Width - 60);
+            double y = rng.NextDouble() * (Height - 60);
+            double size = 10 + rng.NextDouble() * 50;
             int shapeType = i % 4;
 
-            byte r = (byte)random.Next(256);
-            byte g = (byte)random.Next(256);
-            byte b = (byte)random.Next(256);
-            byte a = (byte)(180 + random.Next(76));
+            byte r = (byte)rng.NextInt(256);
+            byte g = (byte)rng.NextInt(256);
+            byte b = (byte)rng.NextInt(256);
+            byte a = (byte)(180 + rng.NextInt(76));
 
             ctx.SetPaintSolid(r, g, b, a);
 
@@ -193,19 +193,19 @@ public class ComplexSceneBenchmarks
 
         ctx.Record(recording, recorder =>
         {
-            var random = new Random(42);
+            var rng = new DeterministicRng(42);
 
             for (int i = 0; i < shapeCount; i++)
             {
-                double x = random.NextDouble() * (Width - 60);
-                double y = random.NextDouble() * (Height - 60);
-                double size = 10 + random.NextDouble() * 50;
+                double x = rng.NextDouble() * (Width - 60);
+                double y = rng.NextDouble() * (Height - 60);
+                double size = 10 + rng.NextDouble() * 50;
                 int shapeType = i % 4;
 
-                byte r = (byte)random.Next(256);
-                byte g = (byte)random.Next(256);
-                byte b = (byte)random.Next(256);
-                byte a = (byte)(180 + random.Next(76));
+                byte r = (byte)rng.NextInt(256);
+                byte g = (byte)rng.NextInt(256);
+                byte b = (byte)rng.NextInt(256);
+                byte a = (byte)(180 + rng.NextInt(76));
 
                 recorder.SetPaint(new Color(r, g, b, a));
 
@@ -275,22 +275,22 @@ public class ComplexSceneBenchmarks
         ctx.FillRect(Rect.FromXYWH(0, 0, Width, Height));
 
         // Generate semi-random but deterministic shapes
-        var random = new Random(42); // Fixed seed for reproducibility
+        var rng = new DeterministicRng(42); // Fixed seed for reproducibility
 
         for (int i = 0; i < ShapeCount; i++)
         {
-            double x = random.NextDouble() * (Width - 60);
-            double y = random.NextDouble() * (Height - 60);
-            double size = 10 + random.NextDouble() * 50;
+            double x = rng.NextDouble() * (Width - 60);
+            double y = rng.NextDouble() * (Height - 60);
+            double size = 10 + rng.NextDouble() * 50;
 
             // Vary shape types for realistic complexity
             int shapeType = i % 4;
 
             // Set varying colors
-            byte r = (byte)(random.Next(256));
-            byte g = (byte)(random.Next(256));
-            byte b = (byte)(random.Next(256));
-            byte a = (byte)(180 + random.Next(76)); // 70-100% opacity
+            byte r = (byte)rng.NextInt(256);
+            byte g = (byte)rng.NextInt(256);
+            byte b = (byte)rng.NextInt(256);
+            byte a = (byte)(180 + rng.NextInt(76)); // 70-100% opacity
 
             ctx.SetPaint(new Color(r, g, b, a));
 
@@ -360,20 +360,20 @@ public class ComplexSceneBenchmarks
         ctx.FillRect(Rect.FromXYWH(0, 0, Width, Height));
 
         // Generate semi-random but deterministic shapes (identical to single-threaded)
-        var random = new Random(42); // Fixed seed for reproducibility
+        var rng = new DeterministicRng(42); // Fixed seed for reproducibility
 
         for (int i = 0; i < ShapeCount; i++)
         {
-            double x = random.NextDouble() * (Width - 60);
-            double y = random.NextDouble() * (Height - 60);
-            double size = 10 + random.NextDouble() * 50;
+            double x = rng.NextDouble() * (Width - 60);
+            double y = rng.NextDouble() * (Height - 60);
+            double size = 10 + rng.NextDouble() * 50;
 
             int shapeType = i % 4;
 
-            byte r = (byte)(random.Next(256));
-            byte g = (byte)(random.Next(256));
-            byte b = (byte)(random.Next(256));
-            byte a = (byte)(180 + random.Next(76));
+            byte r = (byte)rng.NextInt(256);
+            byte g = (byte)rng.NextInt(256);
+            byte b = (byte)rng.NextInt(256);
+            byte a = (byte)(180 + rng.NextInt(76));
 
             ctx.SetPaint(new Color(r, g, b, a));
 
@@ -548,20 +548,20 @@ public class ComplexSceneBenchmarks
         }
 
         // Generate semi-random but deterministic shapes (identical to Vello)
-        var random = new Random(42); // Fixed seed for reproducibility
+        var rng = new DeterministicRng(42); // Fixed seed for reproducibility
 
         for (int i = 0; i < ShapeCount; i++)
         {
-            float x = (float)(random.NextDouble() * (Width - 60));
-            float y = (float)(random.NextDouble() * (Height - 60));
-            float size = (float)(10 + random.NextDouble() * 50);
+            float x = (float)(rng.NextDouble() * (Width - 60));
+            float y = (float)(rng.NextDouble() * (Height - 60));
+            float size = (float)(10 + rng.NextDouble() * 50);
 
             int shapeType = i % 4;
 
-            byte r = (byte)(random.Next(256));
-            byte g = (byte)(random.Next(256));
-            byte b = (byte)(random.Next(256));
-            byte a = (byte)(180 + random.Next(76));
+            byte r = (byte)rng.NextInt(256);
+            byte g = (byte)rng.NextInt(256);
+            byte b = (byte)rng.NextInt(256);
+            byte a = (byte)(180 + rng.NextInt(76));
 
             using var paint = new SKPaint
             {
