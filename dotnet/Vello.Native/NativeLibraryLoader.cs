@@ -1,8 +1,8 @@
 // Copyright 2025 Wieslaw Soltes
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Vello.Native;
 
@@ -18,7 +18,7 @@ public static class NativeLibraryLoader
     /// <summary>
     /// Ensures the native library is loaded and resolver is registered.
     /// </summary>
-    public static void EnsureLoaded()
+    public static nint EnsureLoaded()
     {
         lock (_lock)
         {
@@ -28,6 +28,17 @@ public static class NativeLibraryLoader
                 NativeLibrary.SetDllImportResolver(Assembly.GetExecutingAssembly(), DllImportResolver);
                 _resolverRegistered = true;
             }
+
+            if (_libraryHandle == 0)
+            {
+                _libraryHandle = LoadNativeLibrary();
+                if (_libraryHandle == 0)
+                {
+                    throw new DllNotFoundException("Failed to load native library 'vello_cpu_ffi'.");
+                }
+            }
+
+            return _libraryHandle;
         }
     }
 
@@ -40,15 +51,30 @@ public static class NativeLibraryLoader
         if (libraryName != "vello_cpu_ffi")
             return IntPtr.Zero;
 
-        lock (_lock)
-        {
-            // Return cached handle if already loaded
-            if (_libraryHandle != 0)
-                return _libraryHandle;
+        return EnsureLoaded();
+    }
 
-            _libraryHandle = LoadNativeLibrary();
-            return _libraryHandle;
+    /// <summary>
+    /// Retrieves a function pointer for the specified export.
+    /// </summary>
+    /// <param name="entryPoint">Name of the native symbol.</param>
+    /// <returns>Pointer to the native function.</returns>
+    /// <exception cref="ArgumentException">Thrown when the entry point name is null or empty.</exception>
+    /// <exception cref="EntryPointNotFoundException">Thrown when the symbol cannot be resolved.</exception>
+    public static nint GetExport(string entryPoint)
+    {
+        if (string.IsNullOrEmpty(entryPoint))
+        {
+            throw new ArgumentException("Entry point name must be provided.", nameof(entryPoint));
         }
+
+        nint handle = EnsureLoaded();
+        if (NativeLibrary.TryGetExport(handle, entryPoint, out nint address))
+        {
+            return address;
+        }
+
+        throw new EntryPointNotFoundException($"Unable to resolve native symbol '{entryPoint}'.");
     }
     
     private static nint LoadNativeLibrary()
