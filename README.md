@@ -60,34 +60,29 @@ SparseStrips/
   - Linux: GCC/Clang
   - macOS: Xcode Command Line Tools
 
-### Build Native Library
+### Platform Scripts
 
-```bash
-# Linux/macOS
-./build.sh
+For convenience, the `scripts/` directory exposes one-liners per target platform. Each script builds the Vello CPU FFI native library for both `Debug` and `Release` profiles:
 
-# Windows
-.\build.ps1
+```powershell
+# Windows (PowerShell)
+.\scripts\build-windows.ps1
 ```
 
-This builds `vello_cpu_ffi` and copies the native library to `dotnet/runtimes/`.
-
-### Build .NET Bindings
-
 ```bash
-cd dotnet
-dotnet build
+# Linux
+./scripts/build-linux.sh
+
+# macOS
+./scripts/build-macos.sh
+
+# WebAssembly (requires wasm-tools workload, Emscripten, and Rust nightly)
+./scripts/build-wasm.sh
 ```
 
-### Build Everything
+These helpers focus solely on the native Rust artifacts (including the `wasm32-unknown-emscripten` static archive). Build the .NET projects separately via `dotnet build` or `dotnet publish`.
 
-```bash
-# Linux/macOS
-./build.sh && cd dotnet && dotnet build
-
-# Windows
-.\build.ps1; cd dotnet; dotnet build
-```
+Detailed setup notes for each platform (toolchain requirements, manual steps, and artifact locations) are available in [docs/native-build.md](docs/native-build.md).
 
 ## Quick Start
 
