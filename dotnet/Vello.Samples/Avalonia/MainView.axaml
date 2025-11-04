@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Vello.Samples.Avalonia"
+             xmlns:controls="clr-namespace:Vello.Samples.Avalonia.Controls"
+             x:Class="Vello.Samples.Avalonia.MainView"
+             x:DataType="local:MainWindowViewModel"
+             mc:Ignorable="d"
+             d:DesignWidth="900"
+             d:DesignHeight="600"
+             Background="#101418">
+  <Grid RowDefinitions="Auto,*">
+    <Border Background="#1E2430"
+            BorderBrush="#3A4354"
+            BorderThickness="0,0,0,1"
+            Padding="12,8">
+      <StackPanel Orientation="Horizontal"
+                  Spacing="12"
+                  VerticalAlignment="Center">
+        <TextBlock Text="MotionMark CPU demo"
+                   FontSize="16"
+                   FontWeight="SemiBold"/>
+        <Separator Width="1"
+                   Height="18"
+                   Margin="6,0"
+                   Background="#2E3648"/>
+        <TextBlock Text="Complexity"
+                   VerticalAlignment="Center"/>
+        <Slider Width="200"
+                Minimum="0"
+                Maximum="20"
+                TickFrequency="1"
+                IsSnapToTickEnabled="True"
+                Value="{Binding Complexity, Mode=TwoWay}"/>
+        <TextBlock Text="{Binding Complexity, StringFormat='x{0}'}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding ElementCount, StringFormat='Elements: {0:N0}'}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding FrameTimeMilliseconds, StringFormat='Frame: {0:F2} ms'}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding FramesPerSecond, StringFormat='FPS: {0:F1}'}"
+                   VerticalAlignment="Center"/>
+        <Separator Width="1"
+                   Height="18"
+                   Margin="6,0"
+                   Background="#2E3648"/>
+        <ToggleSwitch Content="Multithreaded"
+                      IsChecked="{Binding UseMultithreadedRendering, Mode=TwoWay}"
+                      IsEnabled="{Binding IsMultithreadedToggleEnabled}"
+                      VerticalAlignment="Center"/>
+      </StackPanel>
+    </Border>
+    <controls:VelloSurface x:Name="Surface"
+                           Grid.Row="1"
+                           Complexity="{Binding Complexity}"
+                           UseMultithreadedRendering="{Binding UseMultithreadedRendering}"
+                           Margin="0"/>
+  </Grid>
+</UserControl>

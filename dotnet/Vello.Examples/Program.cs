@@ -4,7 +4,7 @@
 using Vello;
 using Vello.Geometry;
 
-namespace Vello.Samples;
+namespace Vello.Examples;
 
 class Program
 {

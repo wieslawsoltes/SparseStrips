@@ -19,6 +19,8 @@
     <!-- Use debug build for Debug configuration, release build otherwise -->
     <VelloFfiBuildDir Condition="'$(Configuration)' == 'Debug'">$(VelloFfiRoot)/target/debug</VelloFfiBuildDir>
     <VelloFfiBuildDir Condition="'$(Configuration)' != 'Debug'">$(VelloFfiRoot)/target/release</VelloFfiBuildDir>
+    <VelloFfiWasmDir Condition="'$(Configuration)' == 'Debug'">$(VelloFfiRoot)/target/wasm32-unknown-emscripten/debug</VelloFfiWasmDir>
+    <VelloFfiWasmDir Condition="'$(Configuration)' != 'Debug'">$(VelloFfiRoot)/target/wasm32-unknown-emscripten/release</VelloFfiWasmDir>
   </PropertyGroup>
 
   <!-- Copy native library based on configuration -->
@@ -33,44 +35,162 @@
     <!-- Windows x64 -->
     <Content Include="$(VelloFfiBuildDir)/vello_cpu_ffi.dll"
              Condition="Exists('$(VelloFfiBuildDir)/vello_cpu_ffi.dll')"
-             Link="runtimes/win-x64/native/vello_cpu_ffi.dll"
+             Pack="true"
+             PackagePath="runtimes/win-x64/native/vello_cpu_ffi.dll"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- Windows ARM64 -->
     <Content Include="$(VelloFfiBuildDir)/vello_cpu_ffi.dll"
              Condition="Exists('$(VelloFfiBuildDir)/vello_cpu_ffi.dll')"
-             Link="runtimes/win-arm64/native/vello_cpu_ffi.dll"
+             Pack="true"
+             PackagePath="runtimes/win-arm64/native/vello_cpu_ffi.dll"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- macOS ARM64 -->
     <Content Include="$(VelloFfiBuildDir)/libvello_cpu_ffi.dylib"
              Condition="Exists('$(VelloFfiBuildDir)/libvello_cpu_ffi.dylib')"
-             Link="runtimes/osx-arm64/native/libvello_cpu_ffi.dylib"
+             Pack="true"
+             PackagePath="runtimes/osx-arm64/native/libvello_cpu_ffi.dylib"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- macOS x64 -->
     <Content Include="$(VelloFfiBuildDir)/libvello_cpu_ffi.dylib"
              Condition="Exists('$(VelloFfiBuildDir)/libvello_cpu_ffi.dylib')"
-             Link="runtimes/osx-x64/native/libvello_cpu_ffi.dylib"
+             Pack="true"
+             PackagePath="runtimes/osx-x64/native/libvello_cpu_ffi.dylib"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- Linux x64 -->
     <Content Include="$(VelloFfiBuildDir)/libvello_cpu_ffi.so"
              Condition="Exists('$(VelloFfiBuildDir)/libvello_cpu_ffi.so')"
-             Link="runtimes/linux-x64/native/libvello_cpu_ffi.so"
+             Pack="true"
+             PackagePath="runtimes/linux-x64/native/libvello_cpu_ffi.so"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
 
     <!-- Linux ARM64 -->
     <Content Include="$(VelloFfiBuildDir)/libvello_cpu_ffi.so"
              Condition="Exists('$(VelloFfiBuildDir)/libvello_cpu_ffi.so')"
-             Link="runtimes/linux-arm64/native/libvello_cpu_ffi.so"
+             Pack="true"
+             PackagePath="runtimes/linux-arm64/native/libvello_cpu_ffi.so"
              CopyToOutputDirectory="PreserveNewest"
              Visible="false" />
+
+    <!-- Browser WASM -->
+    <NativeFileReference Include="$(VelloFfiWasmDir)/libvello_cpu_ffi.a"
+                         Condition="Exists('$(VelloFfiWasmDir)/libvello_cpu_ffi.a') and '$(WasmBuildNative)' != 'true'" />
+    <Content Include="$(VelloFfiWasmDir)/libvello_cpu_ffi.a"
+             Condition="Exists('$(VelloFfiWasmDir)/libvello_cpu_ffi.a')"
+             Pack="true"
+             PackagePath="runtimes/browser-wasm/native/libvello_cpu_ffi.a"
+             CopyToOutputDirectory="PreserveNewest"
+             Visible="false" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="(Exists('$(VelloFfiWasmDir)/libvello_cpu_ffi.a')) and ( ('$(RuntimeIdentifier)' == 'browser-wasm') or ('$(WasmBuildNative)' == 'true') )">
+    <EmccExtraLDFlags>$(EmccExtraLDFlags) --whole-archive $(VelloFfiWasmDir)/libvello_cpu_ffi.a --no-whole-archive</EmccExtraLDFlags>
+  </PropertyGroup>
+
+  <ItemGroup Condition="('$(RuntimeIdentifier)' == 'browser-wasm') or ('$(WasmBuildNative)' == 'true')">
+    <EmccExportedFunction Include="_vello_bezpath_clear" />
+    <EmccExportedFunction Include="_vello_bezpath_close" />
+    <EmccExportedFunction Include="_vello_bezpath_curve_to" />
+    <EmccExportedFunction Include="_vello_bezpath_free" />
+    <EmccExportedFunction Include="_vello_bezpath_line_to" />
+    <EmccExportedFunction Include="_vello_bezpath_move_to" />
+    <EmccExportedFunction Include="_vello_bezpath_new" />
+    <EmccExportedFunction Include="_vello_bezpath_quad_to" />
+    <EmccExportedFunction Include="_vello_clear_last_error" />
+    <EmccExportedFunction Include="_vello_font_data_free" />
+    <EmccExportedFunction Include="_vello_font_data_new" />
+    <EmccExportedFunction Include="_vello_font_data_text_to_glyphs" />
+    <EmccExportedFunction Include="_vello_get_last_error" />
+    <EmccExportedFunction Include="_vello_image_free" />
+    <EmccExportedFunction Include="_vello_image_new_from_pixmap" />
+    <EmccExportedFunction Include="_vello_mask_free" />
+    <EmccExportedFunction Include="_vello_mask_get_height" />
+    <EmccExportedFunction Include="_vello_mask_get_width" />
+    <EmccExportedFunction Include="_vello_mask_new_alpha" />
+    <EmccExportedFunction Include="_vello_mask_new_luminance" />
+    <EmccExportedFunction Include="_vello_pixmap_data" />
+    <EmccExportedFunction Include="_vello_pixmap_data_mut" />
+    <EmccExportedFunction Include="_vello_pixmap_free" />
+    <EmccExportedFunction Include="_vello_pixmap_from_png" />
+    <EmccExportedFunction Include="_vello_pixmap_height" />
+    <EmccExportedFunction Include="_vello_pixmap_new" />
+    <EmccExportedFunction Include="_vello_pixmap_resize" />
+    <EmccExportedFunction Include="_vello_pixmap_sample" />
+    <EmccExportedFunction Include="_vello_pixmap_to_png" />
+    <EmccExportedFunction Include="_vello_pixmap_width" />
+    <EmccExportedFunction Include="_vello_png_data_free" />
+    <EmccExportedFunction Include="_vello_recorder_fill_path" />
+    <EmccExportedFunction Include="_vello_recorder_fill_rect" />
+    <EmccExportedFunction Include="_vello_recorder_pop_layer" />
+    <EmccExportedFunction Include="_vello_recorder_push_clip_layer" />
+    <EmccExportedFunction Include="_vello_recorder_reset_paint_transform" />
+    <EmccExportedFunction Include="_vello_recorder_set_fill_rule" />
+    <EmccExportedFunction Include="_vello_recorder_set_paint_solid" />
+    <EmccExportedFunction Include="_vello_recorder_set_paint_transform" />
+    <EmccExportedFunction Include="_vello_recorder_set_stroke" />
+    <EmccExportedFunction Include="_vello_recorder_set_transform" />
+    <EmccExportedFunction Include="_vello_recorder_stroke_path" />
+    <EmccExportedFunction Include="_vello_recorder_stroke_rect" />
+    <EmccExportedFunction Include="_vello_recording_alpha_count" />
+    <EmccExportedFunction Include="_vello_recording_clear" />
+    <EmccExportedFunction Include="_vello_recording_free" />
+    <EmccExportedFunction Include="_vello_recording_has_cached_strips" />
+    <EmccExportedFunction Include="_vello_recording_len" />
+    <EmccExportedFunction Include="_vello_recording_new" />
+    <EmccExportedFunction Include="_vello_recording_strip_count" />
+    <EmccExportedFunction Include="_vello_render_context_execute_recording" />
+    <EmccExportedFunction Include="_vello_render_context_fill_blurred_rounded_rect" />
+    <EmccExportedFunction Include="_vello_render_context_fill_glyphs" />
+    <EmccExportedFunction Include="_vello_render_context_fill_path" />
+    <EmccExportedFunction Include="_vello_render_context_fill_rect" />
+    <EmccExportedFunction Include="_vello_render_context_flush" />
+    <EmccExportedFunction Include="_vello_render_context_free" />
+    <EmccExportedFunction Include="_vello_render_context_get_fill_rule" />
+    <EmccExportedFunction Include="_vello_render_context_get_paint_kind" />
+    <EmccExportedFunction Include="_vello_render_context_get_paint_transform" />
+    <EmccExportedFunction Include="_vello_render_context_get_render_settings" />
+    <EmccExportedFunction Include="_vello_render_context_get_stroke" />
+    <EmccExportedFunction Include="_vello_render_context_get_transform" />
+    <EmccExportedFunction Include="_vello_render_context_height" />
+    <EmccExportedFunction Include="_vello_render_context_new" />
+    <EmccExportedFunction Include="_vello_render_context_new_with" />
+    <EmccExportedFunction Include="_vello_render_context_pop_layer" />
+    <EmccExportedFunction Include="_vello_render_context_prepare_recording" />
+    <EmccExportedFunction Include="_vello_render_context_push_blend_layer" />
+    <EmccExportedFunction Include="_vello_render_context_push_clip_layer" />
+    <EmccExportedFunction Include="_vello_render_context_push_layer" />
+    <EmccExportedFunction Include="_vello_render_context_push_mask_layer" />
+    <EmccExportedFunction Include="_vello_render_context_push_opacity_layer" />
+    <EmccExportedFunction Include="_vello_render_context_record" />
+    <EmccExportedFunction Include="_vello_render_context_render_to_buffer" />
+    <EmccExportedFunction Include="_vello_render_context_render_to_pixmap" />
+    <EmccExportedFunction Include="_vello_render_context_reset" />
+    <EmccExportedFunction Include="_vello_render_context_reset_paint_transform" />
+    <EmccExportedFunction Include="_vello_render_context_reset_transform" />
+    <EmccExportedFunction Include="_vello_render_context_set_aliasing_threshold" />
+    <EmccExportedFunction Include="_vello_render_context_set_fill_rule" />
+    <EmccExportedFunction Include="_vello_render_context_set_paint_image" />
+    <EmccExportedFunction Include="_vello_render_context_set_paint_linear_gradient" />
+    <EmccExportedFunction Include="_vello_render_context_set_paint_radial_gradient" />
+    <EmccExportedFunction Include="_vello_render_context_set_paint_solid" />
+    <EmccExportedFunction Include="_vello_render_context_set_paint_sweep_gradient" />
+    <EmccExportedFunction Include="_vello_render_context_set_paint_transform" />
+    <EmccExportedFunction Include="_vello_render_context_set_stroke" />
+    <EmccExportedFunction Include="_vello_render_context_set_transform" />
+    <EmccExportedFunction Include="_vello_render_context_stroke_glyphs" />
+    <EmccExportedFunction Include="_vello_render_context_stroke_path" />
+    <EmccExportedFunction Include="_vello_render_context_stroke_rect" />
+    <EmccExportedFunction Include="_vello_render_context_width" />
+    <EmccExportedFunction Include="_vello_simd_detect" />
+    <EmccExportedFunction Include="_vello_version" />
   </ItemGroup>
 
 </Project>
