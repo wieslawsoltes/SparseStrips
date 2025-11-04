@@ -21,13 +21,10 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact: native-linux
-            shell: bash
           - os: macos-latest
             artifact: native-macos
-            shell: bash
           - os: windows-latest
             artifact: native-windows
-            shell: pwsh
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +33,6 @@ jobs:
       - name: Build native library
         run: cargo build --release
         working-directory: vello_cpu_ffi
-        shell: ${{ matrix.shell }}
 
       - name: Upload native artifacts
         uses: actions/upload-artifact@v4
