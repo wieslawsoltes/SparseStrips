@@ -164,7 +164,7 @@ RUSTFLAGS="-C link-arg=-sSTANDALONE_WASM=0 -C link-arg=--no-entry" \
 After any build, inspect the following directories:
 
 - `vello_cpu_ffi/target/<profile>/` — contains the platform-specific native artifacts
-- `dotnet/Vello.Native/bin/<Configuration>/net9.0/runtimes/` — contains platform-specific native libraries copied during the build
-- `dotnet/Vello.Samples/*/bin/<Configuration>/` — contains the managed binaries and (for WASM) the `AppBundle`
+- `dotnet/src/Vello.Native/bin/<Configuration>/net9.0/runtimes/` — contains platform-specific native libraries copied during the build
+- `dotnet/samples/Vello.Samples/*/bin/<Configuration>/` — contains the managed binaries and (for WASM) the `AppBundle`
 
 These locations confirm both native and managed layers built successfully. Refer back to the `README.md` for instructions on running the sample applications.

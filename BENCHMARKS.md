@@ -28,7 +28,7 @@ SkiaSharp benchmarks use default SkiaSharp configuration (CPU rendering, single-
 - **Features**: HTML reports, statistical analysis, comparison mode
 
 ### .NET Benchmarks (Vello + SkiaSharp)
-- **Location**: `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/Vello.Benchmarks/`
+- **Location**: `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/tests/Vello.Benchmarks/`
 - **Framework**: BenchmarkDotNet (industry-standard .NET benchmarking)
 - **Implementations**:
   - `ApiBenchmarks.cs` - Vello .NET bindings (26 benchmarks)
@@ -326,7 +326,7 @@ fn bench_fill_rect(c: &mut Criterion) {
 }
 ```
 
-### .NET (`dotnet/Vello.Benchmarks/ApiBenchmarks.cs`)
+### .NET (`dotnet/tests/Vello.Benchmarks/ApiBenchmarks.cs`)
 
 ```csharp
 [Benchmark(Description = "Fill Rectangle - Single Thread")]
@@ -354,7 +354,7 @@ public void FillRect_SingleThread()
 To add new benchmarks:
 
 1. Add to Rust: `rust_api_bench/benches/api_benchmark.rs`
-2. Add to .NET: `dotnet/Vello.Benchmarks/ApiBenchmarks.cs`
+2. Add to .NET: `dotnet/tests/Vello.Benchmarks/ApiBenchmarks.cs`
 3. Keep implementations identical
 4. Update this documentation
 

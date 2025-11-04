@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Vello\Vello.csproj" />
+    <ProjectReference Include="..\..\src\Vello\Vello.csproj" />
   </ItemGroup>
 
 </Project>

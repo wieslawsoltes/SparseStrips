@@ -55,7 +55,7 @@ if ($ARCH -eq "X64") {
     $RID = "win-x86"
 }
 
-$NATIVE_LIB_PATH = "dotnet/Vello.Native/bin/Release/net8.0/runtimes/${RID}/native/${LIB_PREFIX}vello_cpu_ffi.${LIB_EXT}"
+$NATIVE_LIB_PATH = "dotnet/src/Vello.Native/bin/Release/net8.0/runtimes/${RID}/native/${LIB_PREFIX}vello_cpu_ffi.${LIB_EXT}"
 
 if (Test-Path $NATIVE_LIB_PATH) {
     Write-Host "✓ Native library deployed to: $NATIVE_LIB_PATH" -ForegroundColor Green
@@ -70,8 +70,8 @@ Write-Host "Build Complete!" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Native library: vello_cpu_ffi/target/release/${LIB_PREFIX}vello_cpu_ffi.${LIB_EXT}"
-Write-Host ".NET binaries:  dotnet/Vello/bin/Release/net8.0/"
+Write-Host ".NET binaries:  dotnet/src/Vello/bin/Release/net8.0/"
 Write-Host ""
 Write-Host "To run samples:"
-Write-Host "  cd dotnet\Vello.Samples"
+Write-Host "  cd dotnet\samples\Vello.Samples"
 Write-Host "  dotnet run -c Release"

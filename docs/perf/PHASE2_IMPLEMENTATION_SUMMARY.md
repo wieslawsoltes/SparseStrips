@@ -397,11 +397,11 @@ After:
 ## Files Changed
 
 ### Modified Files (2):
-- `dotnet/Vello/Pixmap.cs` - 5 methods added/updated
-- `dotnet/Vello/FontData.cs` - 1 constructor refactored
+- `dotnet/src/Vello/Pixmap.cs` - 5 methods added/updated
+- `dotnet/src/Vello/FontData.cs` - 1 constructor refactored
 
 ### New Files (1):
-- `dotnet/Vello.Tests/Phase2PerformanceTests.cs` - 282 lines, 14 tests
+- `dotnet/tests/Vello.Tests/Phase2PerformanceTests.cs` - 282 lines, 14 tests
 
 ## Build & Test Status
 

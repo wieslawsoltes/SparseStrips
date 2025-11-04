@@ -73,7 +73,7 @@ pub enum VelloPaintTypeTag {
 
 #### Step 1.2: .NET P/Invoke Layer
 
-**File**: `dotnet/Vello.Native/NativeMethods.cs`
+**File**: `dotnet/src/Vello.Native/NativeMethods.cs`
 
 ```csharp
 [LibraryImport(LibraryName)]
@@ -101,7 +101,7 @@ public enum PaintType
 
 #### Step 1.3: .NET High-Level API
 
-**File**: `dotnet/Vello/RenderContext.cs`
+**File**: `dotnet/src/Vello/RenderContext.cs`
 
 ```csharp
 /// <summary>
@@ -305,7 +305,7 @@ pub extern "C" fn vello_render_context_execute_recording(
 
 #### Step 2.4: .NET P/Invoke Layer
 
-**File**: `dotnet/Vello.Native/NativeMethods.cs`
+**File**: `dotnet/src/Vello.Native/NativeMethods.cs`
 
 ```csharp
 // Recording handle
@@ -367,7 +367,7 @@ public static partial void Recorder_StrokeRect(nint recorder, in VelloRect rect)
 
 #### Step 2.5: .NET High-Level API
 
-**File**: `dotnet/Vello/Recording.cs` (new file)
+**File**: `dotnet/src/Vello/Recording.cs` (new file)
 
 ```csharp
 namespace Vello;
@@ -484,7 +484,7 @@ public sealed class Recording : IDisposable
 }
 ```
 
-**File**: `dotnet/Vello/Recorder.cs` (new file)
+**File**: `dotnet/src/Vello/Recorder.cs` (new file)
 
 ```csharp
 namespace Vello;
@@ -540,7 +540,7 @@ public sealed class Recorder
 }
 ```
 
-**File**: `dotnet/Vello/RenderContext.cs` (additions)
+**File**: `dotnet/src/Vello/RenderContext.cs` (additions)
 
 ```csharp
 /// <summary>
@@ -636,7 +636,7 @@ public void ExecuteRecording(Recording recording)
 
 ### Testing
 
-**File**: `dotnet/Vello.Tests/RecordingTests.cs` (new file)
+**File**: `dotnet/tests/Vello.Tests/RecordingTests.cs` (new file)
 
 ```csharp
 public class RecordingTests
@@ -741,7 +741,7 @@ public class RecordingTests
 
 ### Benchmarking
 
-**File**: `dotnet/Vello.Benchmarks/RecordingBenchmarks.cs` (new file)
+**File**: `dotnet/tests/Vello.Benchmarks/RecordingBenchmarks.cs` (new file)
 
 ```csharp
 [MemoryDiagnoser]
@@ -833,10 +833,10 @@ The paint getter has been successfully implemented with a simplified approach th
 **Files Modified**:
 - `vello_cpu_ffi/src/types.rs` - Added `VelloPaintKind` enum
 - `vello_cpu_ffi/src/context.rs` - Added `vello_render_context_get_paint_kind()`
-- `dotnet/Vello.Native/NativeEnums.cs` - Added `VelloPaintKind` enum
-- `dotnet/Vello.Native/NativeMethods.cs` - Added P/Invoke declaration
-- `dotnet/Vello/Styling/PaintKind.cs` - Created new public enum
-- `dotnet/Vello/Core/RenderContext.cs` - Added `GetPaintKind()` method
+- `dotnet/src/Vello.Native/NativeEnums.cs` - Added `VelloPaintKind` enum
+- `dotnet/src/Vello.Native/NativeMethods.cs` - Added P/Invoke declaration
+- `dotnet/src/Vello/Styling/PaintKind.cs` - Created new public enum
+- `dotnet/src/Vello/Core/RenderContext.cs` - Added `GetPaintKind()` method
 
 **API Added**:
 ```csharp
@@ -855,7 +855,7 @@ public class RenderContext
 }
 ```
 
-**Location**: `dotnet/Vello/Core/RenderContext.cs:633-640`
+**Location**: `dotnet/src/Vello/Core/RenderContext.cs:633-640`
 
 ### Phase 2: Recording API - ✅ COMPLETED
 
@@ -865,14 +865,14 @@ The Recording API has been successfully implemented with full functionality. Ini
 
 **Files Created**:
 - `vello_cpu_ffi/src/recording.rs` (NEW - 252 lines) - FFI bindings for Recording and Recorder
-- `dotnet/Vello/Core/Recording.cs` (NEW - 94 lines) - Recording class with IDisposable
-- `dotnet/Vello/Core/Recorder.cs` (NEW - 86 lines) - Recorder class with drawing methods
-- `dotnet/Vello.Tests/RecordingTests.cs` (NEW - 107 lines) - Comprehensive test suite
+- `dotnet/src/Vello/Core/Recording.cs` (NEW - 94 lines) - Recording class with IDisposable
+- `dotnet/src/Vello/Core/Recorder.cs` (NEW - 86 lines) - Recorder class with drawing methods
+- `dotnet/tests/Vello.Tests/RecordingTests.cs` (NEW - 107 lines) - Comprehensive test suite
 
 **Files Modified**:
 - `vello_cpu_ffi/src/lib.rs` - Added recording module
-- `dotnet/Vello.Native/NativeMethods.cs` - Added Recording/Recorder P/Invoke declarations
-- `dotnet/Vello/Core/RenderContext.cs` - Added Record/PrepareRecording/ExecuteRecording methods
+- `dotnet/src/Vello.Native/NativeMethods.cs` - Added Recording/Recorder P/Invoke declarations
+- `dotnet/src/Vello/Core/RenderContext.cs` - Added Record/PrepareRecording/ExecuteRecording methods
 
 **API Implemented**:
 ```csharp
@@ -928,7 +928,7 @@ The `GetPaintKind()` method includes comprehensive XML documentation:
 public PaintKind GetPaintKind()
 ```
 
-**Location**: `dotnet/Vello/Core/RenderContext.cs:633-640`
+**Location**: `dotnet/src/Vello/Core/RenderContext.cs:633-640`
 
 All related enums also include XML documentation:
 - `PaintKind` enum with descriptions for each variant
@@ -936,7 +936,7 @@ All related enums also include XML documentation:
 
 ### Step 3.2: Examples
 
-**File**: `dotnet/Vello.Samples/PaintInspectionExample.cs` (to be created)
+**File**: `dotnet/samples/Vello.Samples/PaintInspectionExample.cs` (to be created)
 
 Create a simple example demonstrating:
 - Setting different paint types (solid, gradients, images)
@@ -986,7 +986,7 @@ public static class PaintInspectionExample
 
 ### Step 3.3: Unit Tests - ✅ COMPLETED
 
-**File**: `dotnet/Vello.Tests/PaintGetterTests.cs` ✅ CREATED
+**File**: `dotnet/tests/Vello.Tests/PaintGetterTests.cs` ✅ CREATED
 
 **Implementation Date**: 2025-10-31
 

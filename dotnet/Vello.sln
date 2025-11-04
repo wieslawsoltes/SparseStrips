@@ -3,25 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Native", "Vello.Native\Vello.Native.csproj", "{308856EB-AFBD-45BB-8DE7-8ECBDBD4C535}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Native", "src\Vello.Native\Vello.Native.csproj", "{308856EB-AFBD-45BB-8DE7-8ECBDBD4C535}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello", "Vello\Vello.csproj", "{A0746A7E-F9BF-4ED0-B74E-26D600A099CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello", "src\Vello\Vello.csproj", "{A0746A7E-F9BF-4ED0-B74E-26D600A099CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Tests", "Vello.Tests\Vello.Tests.csproj", "{EFF09511-AC2E-449E-BB19-9ADF606E73D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Tests", "tests\Vello.Tests\Vello.Tests.csproj", "{EFF09511-AC2E-449E-BB19-9ADF606E73D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Benchmarks", "Vello.Benchmarks\Vello.Benchmarks.csproj", "{7E92D419-831E-459C-BE7C-BB889B14FB0E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Benchmarks", "tests\Vello.Benchmarks\Vello.Benchmarks.csproj", "{7E92D419-831E-459C-BE7C-BB889B14FB0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.DiagnosticTests", "Vello.DiagnosticTests\Vello.DiagnosticTests.csproj", "{458CA738-557F-4EE7-9DB9-B65536671F00}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.DiagnosticTests", "tests\Vello.DiagnosticTests\Vello.DiagnosticTests.csproj", "{458CA738-557F-4EE7-9DB9-B65536671F00}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Vello.Samples", "Vello.Samples", "{D0273416-13CA-4252-81D7-CD053DC0C60F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{D0273416-13CA-4252-81D7-CD053DC0C60F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Samples.Avalonia", "Vello.Samples\Avalonia\Vello.Samples.Avalonia.csproj", "{65E24A24-C0ED-435A-942B-441F8E66B94E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Samples.Avalonia", "samples\Vello.Samples\Avalonia\Vello.Samples.Avalonia.csproj", "{65E24A24-C0ED-435A-942B-441F8E66B94E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Samples.Avalonia.Desktop", "Vello.Samples\Avalonia.Desktop\Vello.Samples.Avalonia.Desktop.csproj", "{D612BF3B-788A-4EAF-96AB-B73FA91871BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Samples.Avalonia.Desktop", "samples\Vello.Samples\Avalonia.Desktop\Vello.Samples.Avalonia.Desktop.csproj", "{D612BF3B-788A-4EAF-96AB-B73FA91871BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Examples", "Vello.Examples\Vello.Examples.csproj", "{48A0BBF0-CB29-4CA0-A481-B06C6D3E9967}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Examples", "samples\Vello.Examples\Vello.Examples.csproj", "{48A0BBF0-CB29-4CA0-A481-B06C6D3E9967}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Avalonia", "Vello.Avalonia\Vello.Avalonia.csproj", "{AA18D563-D5BB-4FBF-A6ED-28CF849E5548}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vello.Avalonia", "src\Vello.Avalonia\Vello.Avalonia.csproj", "{AA18D563-D5BB-4FBF-A6ED-28CF849E5548}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A129411A-B77E-444C-88FA-62A1A1B40453}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{86C49DE4-0ADF-454C-9D3E-D8219215B0F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -146,6 +150,12 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{308856EB-AFBD-45BB-8DE7-8ECBDBD4C535} = {A129411A-B77E-444C-88FA-62A1A1B40453}
+		{A0746A7E-F9BF-4ED0-B74E-26D600A099CD} = {A129411A-B77E-444C-88FA-62A1A1B40453}
+		{AA18D563-D5BB-4FBF-A6ED-28CF849E5548} = {A129411A-B77E-444C-88FA-62A1A1B40453}
+		{EFF09511-AC2E-449E-BB19-9ADF606E73D6} = {86C49DE4-0ADF-454C-9D3E-D8219215B0F8}
+		{7E92D419-831E-459C-BE7C-BB889B14FB0E} = {86C49DE4-0ADF-454C-9D3E-D8219215B0F8}
+		{458CA738-557F-4EE7-9DB9-B65536671F00} = {86C49DE4-0ADF-454C-9D3E-D8219215B0F8}
 		{65E24A24-C0ED-435A-942B-441F8E66B94E} = {D0273416-13CA-4252-81D7-CD053DC0C60F}
 		{D612BF3B-788A-4EAF-96AB-B73FA91871BC} = {D0273416-13CA-4252-81D7-CD053DC0C60F}
 		{48A0BBF0-CB29-4CA0-A481-B06C6D3E9967} = {D0273416-13CA-4252-81D7-CD053DC0C60F}

@@ -19,7 +19,7 @@ We will proceed in **five phases**, grouped by API families. Each phase introduc
 ---
 
 ## Phase 0 – Harness Foundations (Done / Review)
-- [x] Establish `InteropTests` project area under `dotnet/Vello.Tests/Interop`.
+- [x] Establish `InteropTests` project area under `dotnet/tests/Vello.Tests/Interop`.
 - [x] Define `NativeTestHelpers` for context/pixmap allocation (direct `NativeMethods` usage).
 - [x] Add first smoke tests (render solid fill, recording round-trip) to validate harness.
 
@@ -51,7 +51,7 @@ We will proceed in **five phases**, grouped by API families. Each phase introduc
 
 > **Phase 4 Progress (2025-02-14):** Image paint coverage landed via `RenderContext_SetPaintImage` (solid pixmap source) with null-handle guards. Applying opacity to images currently triggers a native panic, so alpha-specific tests remain blocked until the engine supports that path.
 >
-> **Status Update (2025-02-15):** Inter-Regular.ttf added under `dotnet/Vello.Tests/TestAssets/fonts/`; glyph rendering (`RenderContext_FillGlyphs`) now exercises cmap-derived glyph IDs. The FFI guards image opacity by returning `VELLO_ERROR_INVALID_PARAMETER`, and the managed tests assert the guard instead of panicking.
+> **Status Update (2025-02-15):** Inter-Regular.ttf added under `dotnet/tests/Vello.Tests/TestAssets/fonts/`; glyph rendering (`RenderContext_FillGlyphs`) now exercises cmap-derived glyph IDs. The FFI guards image opacity by returning `VELLO_ERROR_INVALID_PARAMETER`, and the managed tests assert the guard instead of panicking.
 
 **Phase 1 Completion Checklist**
 - [x] RenderContext construction/destruction happy path (`RenderContextPixmapInteropTests`).

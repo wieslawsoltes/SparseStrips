@@ -15,7 +15,7 @@
 
   <!-- Define native library paths based on configuration -->
   <PropertyGroup>
-    <VelloFfiRoot>$(MSBuildProjectDirectory)/../../vello_cpu_ffi</VelloFfiRoot>
+    <VelloFfiRoot>$(MSBuildProjectDirectory)/../../../vello_cpu_ffi</VelloFfiRoot>
     <!-- Use debug build for Debug configuration, release build otherwise -->
     <VelloFfiBuildDir Condition="'$(Configuration)' == 'Debug'">$(VelloFfiRoot)/target/debug</VelloFfiBuildDir>
     <VelloFfiBuildDir Condition="'$(Configuration)' != 'Debug'">$(VelloFfiRoot)/target/release</VelloFfiBuildDir>

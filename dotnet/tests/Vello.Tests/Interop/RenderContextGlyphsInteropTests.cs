@@ -20,10 +20,6 @@ public sealed class RenderContextGlyphsInteropTests
         "..",
         "..",
         "..",
-        "..",
-        "..",
-        "dotnet",
-        "Vello.Tests",
         "TestAssets",
         "fonts",
         "Inter-Regular.ttf"));

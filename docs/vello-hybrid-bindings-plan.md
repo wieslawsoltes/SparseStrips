@@ -4,8 +4,8 @@
 - `extern/vello/sparse_strips/vello_hybrid/src/scene.rs:90` defines `Scene`, which mirrors the CPU `RenderContext` API by turning peniko paints and geometry into sparse strips and alpha tiles while caching encoded paints and glyph data. This provides the stateful CPU half of the hybrid renderer that the bindings need to expose.
 - `extern/vello/sparse_strips/vello_hybrid/src/render/wgpu.rs:129` exposes `Renderer::render`, requiring the caller to supply an initialized `wgpu::Device`, `Queue`, `CommandEncoder`, and output `TextureView`. The renderer prepares GPU resources (`Programs`) and schedules draws via a `Scheduler`.
 - `extern/vello/sparse_strips/vello_hybrid/src/schedule.rs:404` drives the tile scheduler that maps `Scene`’s wide tiles into GPU work. Any FFI wrapper must ensure tight coupling between `Scene` generation and `Renderer` scheduling so cached strip data stays valid across frames.
-- `dotnet/Vello.Native/NativeMethods.cs:11` and `dotnet/Vello/Core/RenderContext.cs:621` implement the CPU bindings that Avalonia currently consumes through `RenderToBuffer`. The hybrid story must deliver a comparable API while accommodating GPU surfaces instead of CPU buffers.
-- `dotnet/Vello.Avalonia/Controls/VelloSurface.cs:98` shows the consumer pathway: render into a `RenderContext`, obtain RGBA pixels, and blit into an Avalonia `WriteableBitmap`. Transitioning to hybrid requires a new presentation path (swap chain, texture sharing, or GPU copy-back) without regressing this control.
+- `dotnet/src/Vello.Native/NativeMethods.cs:11` and `dotnet/src/Vello/Core/RenderContext.cs:621` implement the CPU bindings that Avalonia currently consumes through `RenderToBuffer`. The hybrid story must deliver a comparable API while accommodating GPU surfaces instead of CPU buffers.
+- `dotnet/src/Vello.Avalonia/Controls/VelloSurface.cs:98` shows the consumer pathway: render into a `RenderContext`, obtain RGBA pixels, and blit into an Avalonia `WriteableBitmap`. Transitioning to hybrid requires a new presentation path (swap chain, texture sharing, or GPU copy-back) without regressing this control.
 
 ## Binding Objectives
 1. Expose `vello_hybrid` primitives over a C-compatible surface that closely follows the current CPU binding ergonomics for paints, paths, recordings, and resources.
@@ -38,8 +38,8 @@
 - Support dynamic resizing by reconfiguring textures and updating `RenderTargetConfig`, keeping `Scene::new_with` and `Renderer::new_with` in sync.
 
 ### 5. .NET Binding Layer
-- Add a new P/Invoke module (e.g., `HybridNativeMethods`) in `dotnet/Vello.Native` modeled after the CPU bindings (`dotnet/Vello.Native/NativeMethods.cs:11`), including safe handle wrappers for scenes, renderers, and GPU contexts.
-- Introduce managed wrappers (`HybridRenderContext`, `HybridRenderer`, `HybridSurface`) under `dotnet/Vello`, providing idiomatic disposal, Span-based APIs, and async-friendly frame submission helpers.
+- Add a new P/Invoke module (e.g., `HybridNativeMethods`) in `dotnet/src/Vello.Native` modeled after the CPU bindings (`dotnet/src/Vello.Native/NativeMethods.cs:11`), including safe handle wrappers for scenes, renderers, and GPU contexts.
+- Introduce managed wrappers (`HybridRenderContext`, `HybridRenderer`, `HybridSurface`) under `dotnet/src/Vello`, providing idiomatic disposal, Span-based APIs, and async-friendly frame submission helpers.
 - Bridge existing higher-level constructs (paints, paths, recordings) by sharing structs/enums with the CPU path to minimize duplication.
 
 ### 6. Avalonia Integration
@@ -49,7 +49,7 @@
 
 ### 7. Testing & Validation
 - Extend Rust integration tests to cover scene encoding + renderer output using headless `wgpu` backends (GL, Vulkan, D3D12) where CI permits.
-- Add C# interop tests mirroring `dotnet/Vello.Tests/Interop/*` to validate paints, recordings, and resource uploads through the hybrid pipeline.
+- Add C# interop tests mirroring `dotnet/tests/Vello.Tests/Interop/*` to validate paints, recordings, and resource uploads through the hybrid pipeline.
 - Build stress tests for atlas growth, recording replay, and surface resizing; compare output hashes between CPU and hybrid paths for deterministic scenes.
 
 ## Risks & Open Questions

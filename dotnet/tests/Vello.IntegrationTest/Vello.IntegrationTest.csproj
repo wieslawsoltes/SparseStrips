@@ -10,7 +10,7 @@
   <PropertyGroup>
     <VelloPackageVersion Condition="'$(VersionSuffix)' == ''">$(VersionPrefix)</VelloPackageVersion>
     <VelloPackageVersion Condition="'$(VersionSuffix)' != ''">$(VersionPrefix)-$(VersionSuffix)</VelloPackageVersion>
-    <RestoreSources>$(MSBuildThisFileDirectory)..\NuGet</RestoreSources>
+    <RestoreSources>$(MSBuildThisFileDirectory)..\..\NuGet</RestoreSources>
     <RestoreAdditionalProjectSources></RestoreAdditionalProjectSources>
   </PropertyGroup>
 

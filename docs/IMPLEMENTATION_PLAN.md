@@ -860,7 +860,7 @@ SparseStrips/                      # Repository root
 
 ### Vello.Native Project
 
-**dotnet/Vello.Native/Vello.Native.csproj:**
+**dotnet/src/Vello.Native/Vello.Native.csproj:**
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -1113,7 +1113,7 @@ internal static partial class NativeMethods
 
 ### Vello High-Level API Project
 
-**dotnet/Vello/Vello.csproj:**
+**dotnet/src/Vello/Vello.csproj:**
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>

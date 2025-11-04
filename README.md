@@ -24,12 +24,19 @@ SparseStrips/
 │       └── lib.rs             # FFI exports
 │
 ├── dotnet/                    # .NET bindings
-│   ├── Vello.Native/          # P/Invoke layer (internal)
-│   ├── Vello/                 # High-level C# API (public)
-│   ├── Vello.Avalonia/        # Avalonia control + helpers (NuGet package)
-│   ├── Vello.Samples/         # 15 example applications
-│   ├── Vello.Tests/           # 85 unit tests (95.3% passing)
-│   └── runtimes/              # Native libraries (platform-specific)
+│   ├── src/                   # Shipping packages
+│   │   ├── Vello.Native/      # P/Invoke layer (internal)
+│   │   ├── Vello/             # High-level C# API (public)
+│   │   └── Vello.Avalonia/    # Avalonia control + helpers (NuGet package)
+│   ├── samples/               # Demo applications
+│   │   ├── Vello.Samples/     # 15 example applications
+│   │   ├── Vello.Examples/    # CLI samples
+│   │   └── MTTest/            # Multithreading investigation harness
+│   └── tests/                 # Automated + perf suites
+│       ├── Vello.Tests/       # 85 unit tests (95.3% passing)
+│       ├── Vello.DiagnosticTests/   # Deep diagnostics harness
+│       ├── Vello.Benchmarks/  # BenchmarkDotNet harness
+│       └── Vello.IntegrationTest/   # Package validation app
 │
 ├── docs/                      # Documentation
 │   ├── API_COVERAGE.md        # Complete API coverage matrix
@@ -150,7 +157,7 @@ The control handles render-loop scheduling, context pooling, and stride-aware bl
 
 ## Examples
 
-See `dotnet/Vello.Samples/` for 15 complete examples:
+See `dotnet/samples/Vello.Samples/` for 15 complete examples:
 
 1. **Simple rectangle** - Basic solid color rendering
 2. **Linear gradient** - Gradient fills with extend modes

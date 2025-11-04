@@ -70,7 +70,7 @@ elif [[ "$PLATFORM" == "Linux" ]]; then
     fi
 fi
 
-NATIVE_LIB_PATH="dotnet/Vello.Native/bin/Release/net8.0/runtimes/${RID}/native/${LIB_PREFIX}vello_cpu_ffi.${LIB_EXT}"
+NATIVE_LIB_PATH="dotnet/src/Vello.Native/bin/Release/net8.0/runtimes/${RID}/native/${LIB_PREFIX}vello_cpu_ffi.${LIB_EXT}"
 
 if [ -f "$NATIVE_LIB_PATH" ]; then
     echo "✓ Native library deployed to: $NATIVE_LIB_PATH"
@@ -85,8 +85,8 @@ echo "Build Complete!"
 echo "========================================"
 echo ""
 echo "Native library: vello_cpu_ffi/target/release/${LIB_PREFIX}vello_cpu_ffi.${LIB_EXT}"
-echo ".NET binaries:  dotnet/Vello/bin/Release/net8.0/"
+echo ".NET binaries:  dotnet/src/Vello/bin/Release/net8.0/"
 echo ""
 echo "To run samples:"
-echo "  cd dotnet/Vello.Samples"
+echo "  cd dotnet/samples/Vello.Samples"
 echo "  dotnet run -c Release"

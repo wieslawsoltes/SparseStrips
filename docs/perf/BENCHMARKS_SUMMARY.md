@@ -49,11 +49,11 @@ rust_api_bench/
 - Throughput measurements
 - Configurable sample sizes
 
-### 2. .NET Benchmarks (`dotnet/Vello.Benchmarks/`)
+### 2. .NET Benchmarks (`dotnet/tests/Vello.Benchmarks/`)
 
 **Framework**: BenchmarkDotNet 0.14.0
 
-**Location**: `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/Vello.Benchmarks/`
+**Location**: `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/tests/Vello.Benchmarks/`
 
 **Structure**:
 ```
@@ -86,11 +86,11 @@ Vello.Benchmarks/
 - Categorized benchmarks
 - Baseline comparisons
 
-### 3. SkiaSharp Benchmarks (`dotnet/Vello.Benchmarks/`)
+### 3. SkiaSharp Benchmarks (`dotnet/tests/Vello.Benchmarks/`)
 
 **Framework**: BenchmarkDotNet 0.14.0
 
-**Location**: `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/Vello.Benchmarks/`
+**Location**: `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/tests/Vello.Benchmarks/`
 
 **Structure**:
 ```
@@ -434,7 +434,7 @@ public void BenchmarkName()
    - 800+ lines
    - 26 benchmarks total
 
-4. **dotnet/Vello.Benchmarks/ApiBenchmarks.cs**
+4. **dotnet/tests/Vello.Benchmarks/ApiBenchmarks.cs**
    - .NET benchmark implementation
    - 800+ lines
    - 26 benchmarks total

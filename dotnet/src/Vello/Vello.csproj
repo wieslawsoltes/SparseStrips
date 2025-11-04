@@ -15,7 +15,7 @@
 
   <!-- Include native libraries in NuGet package -->
   <ItemGroup>
-    <None Include="..\runtimes\**\*.*">
+    <None Include="..\..\runtimes\**\*.*">
       <Pack>true</Pack>
       <PackagePath>runtimes</PackagePath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

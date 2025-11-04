@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Vello/Vello.csproj" />
-    <ProjectReference Include="../Vello.Native/Vello.Native.csproj" />
+    <ProjectReference Include="..\..\src\Vello\Vello.csproj" />
+    <ProjectReference Include="..\..\src\Vello.Native\Vello.Native.csproj" />
   </ItemGroup>
 
 </Project>

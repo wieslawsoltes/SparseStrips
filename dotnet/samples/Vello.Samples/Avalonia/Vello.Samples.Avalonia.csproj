@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Vello.Avalonia\Vello.Avalonia.csproj" />
-    <ProjectReference Include="..\..\Vello\Vello.csproj" />
+    <ProjectReference Include="..\..\..\src\Vello.Avalonia\Vello.Avalonia.csproj" />
+    <ProjectReference Include="..\..\..\src\Vello\Vello.csproj" />
   </ItemGroup>
 </Project>

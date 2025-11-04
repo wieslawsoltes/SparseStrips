@@ -276,13 +276,13 @@ After:
 ## Files Changed
 
 ### Modified Files (3):
-- `dotnet/Vello/RenderContext.cs` - 8 methods refactored
-- `dotnet/Vello/FontData.cs` - 2 methods refactored
+- `dotnet/src/Vello/RenderContext.cs` - 8 methods refactored
+- `dotnet/src/Vello/FontData.cs` - 2 methods refactored
 - `docs/PERFORMANCE_OPTIMIZATION_PLAN.md` - Status updated
 - `README.md` - Features and performance section updated
 
 ### New Files (2):
-- `dotnet/Vello.Tests/SpanPerformanceTests.cs` - 468 lines, 18 tests
+- `dotnet/tests/Vello.Tests/SpanPerformanceTests.cs` - 468 lines, 18 tests
 - `docs/PHASE1_IMPLEMENTATION_SUMMARY.md` - This file
 
 ## Build & Test Status

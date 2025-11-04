@@ -438,7 +438,7 @@ The Vello .NET bindings are **correctly implemented** and **will scale with mult
 
 ## Appendix: Test Code
 
-See `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/Vello.DiagnosticTests/Program.cs` for full diagnostic test implementation.
+See `/Users/wieslawsoltes/GitHub/SparseStrips/dotnet/tests/Vello.DiagnosticTests/Program.cs` for full diagnostic test implementation.
 
 **Key tests**:
 1. `TestThreadCount()` - Monitor thread creation
