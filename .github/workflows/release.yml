@@ -113,6 +113,11 @@ jobs:
         if: ${{ env.NUGET_API_KEY == '' }}
         run: echo "NUGET_API_KEY secret is not configured; skipping publish job."
 
+      - uses: actions/checkout@v4
+        if: ${{ env.NUGET_API_KEY != '' }}
+        with:
+          submodules: recursive
+
       - uses: actions/setup-dotnet@v4
         if: ${{ env.NUGET_API_KEY != '' }}
         with:
