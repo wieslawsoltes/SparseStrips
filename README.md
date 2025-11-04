@@ -1,5 +1,8 @@
 # Vello Sparse Strips .NET Bindings
 
+[![NuGet](https://img.shields.io/nuget/v/Vello.svg)](https://www.nuget.org/packages/Vello/)
+[![NuGet](https://img.shields.io/nuget/v/Vello.Native.svg)](https://www.nuget.org/packages/Vello.Native/)
+
 **Status: Production Ready** ✅
 
 High-performance .NET 8.0 bindings for the [Vello Sparse Strips](https://github.com/linebender/vello/tree/main/sparse_strips) CPU renderer with **100% API coverage**.
