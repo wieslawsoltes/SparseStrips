@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -6,26 +7,25 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.VisualTree;
-using Vello.Samples.Avalonia.Rendering;
+using Vello;
+using Vello.Avalonia.Rendering;
 
-namespace Vello.Samples.Avalonia.Controls;
+namespace Vello.Avalonia.Controls;
 
 /// <summary>
-/// High-performance host that renders Vello's MotionMark scene into an Avalonia WriteableBitmap.
+/// Avalonia control that hosts a Vello render context and blits frames into a <see cref="WriteableBitmap"/>.
 /// </summary>
 public sealed class VelloSurface : Control
 {
-    public static readonly StyledProperty<int> ComplexityProperty =
-        AvaloniaProperty.Register<VelloSurface, int>(
-            nameof(Complexity),
-            8,
-            coerce: (_, value) => Math.Clamp(value, 0, 24));
+    public static readonly StyledProperty<IVelloRenderer?> RendererProperty =
+        AvaloniaProperty.Register<VelloSurface, IVelloRenderer?>(
+            nameof(Renderer));
+
     public static readonly StyledProperty<bool> UseMultithreadedRenderingProperty =
         AvaloniaProperty.Register<VelloSurface, bool>(
             nameof(UseMultithreadedRendering),
             true);
 
-    private readonly MotionMarkScene _scene = new();
     private WriteableBitmap? _bitmap;
     private RenderContext? _context;
     private byte[]? _scratchBuffer;
@@ -37,8 +37,8 @@ public sealed class VelloSurface : Control
     private int _statsFrameCount;
     private bool _renderFailed;
     private string? _lastRenderError;
-
-    public event EventHandler<FrameStats>? FrameStatsUpdated;
+    private IVelloRenderer? _renderer;
+    private bool _useMultithreadedRendering = !OperatingSystem.IsBrowser();
 
     public VelloSurface()
     {
@@ -46,32 +46,40 @@ public sealed class VelloSurface : Control
         UseMultithreadedRendering = !OperatingSystem.IsBrowser();
     }
 
-    public int Complexity
+    /// <summary>
+    /// Gets or sets the renderer that produces pixel output for this surface.
+    /// </summary>
+    public IVelloRenderer? Renderer
     {
-        get => GetValue(ComplexityProperty);
-        set => SetValue(ComplexityProperty, value);
+        get => GetValue(RendererProperty);
+        set => SetValue(RendererProperty, value);
     }
 
+    /// <summary>
+    /// Gets or sets whether Vello should use multithreaded rendering.
+    /// </summary>
     public bool UseMultithreadedRendering
     {
         get => GetValue(UseMultithreadedRenderingProperty);
         set => SetValue(UseMultithreadedRenderingProperty, value);
     }
 
+    /// <summary>
+    /// Raised periodically with averaged frame timing statistics.
+    /// </summary>
+    public event EventHandler<VelloFrameStats>? FrameStatsUpdated;
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == ComplexityProperty)
+        if (change.Property == RendererProperty)
         {
-            _scene.SetComplexity(Complexity);
+            UpdateRenderer((IVelloRenderer?)change.NewValue);
         }
         else if (change.Property == UseMultithreadedRenderingProperty)
         {
-            DisposeResources();
-            _renderFailed = false;
-            _lastRenderError = null;
-            RequestNextFrame();
+            UpdateUseMultithreadedRendering(change.GetNewValue<bool>());
         }
     }
 
@@ -79,7 +87,6 @@ public sealed class VelloSurface : Control
     {
         base.OnAttachedToVisualTree(e);
         _isAttached = true;
-        _scene.SetComplexity(Complexity);
         RequestNextFrame();
     }
 
@@ -99,6 +106,10 @@ public sealed class VelloSurface : Control
         try
         {
             base.Render(context);
+
+            var renderer = Volatile.Read(ref _renderer);
+            if (renderer is null)
+                return;
 
             var topLevel = TopLevel.GetTopLevel(this);
             if (topLevel is null)
@@ -135,28 +146,13 @@ public sealed class VelloSurface : Control
                 return;
             }
 
-            _scene.Render(_context, pixelSize.Width, pixelSize.Height);
+            var renderer = Volatile.Read(ref _renderer);
+            if (renderer is null)
+                return;
 
-            using var locked = _bitmap.Lock();
-            int width = pixelSize.Width;
-            int height = pixelSize.Height;
-            int stride = locked.RowBytes;
+            renderer.Render(_context, pixelSize.Width, pixelSize.Height);
 
-            unsafe
-            {
-                if (stride == width * 4)
-                {
-                    var target = new Span<byte>((void*)locked.Address, stride * height);
-                    _context.RenderToBuffer(target, (ushort)width, (ushort)height);
-                }
-                else
-                {
-                    Span<byte> scratch = AcquireScratch(width, height);
-                    _context.RenderToBuffer(scratch, (ushort)width, (ushort)height);
-                    var target = new Span<byte>((void*)locked.Address, stride * height);
-                    CopyRows(scratch, target, width, height, stride);
-                }
-            }
+            VelloBitmapBlitter.Blit(_context, _bitmap, ref _scratchBuffer);
 
             var sourceRect = new Rect(0, 0, _bitmap.PixelSize.Width, _bitmap.PixelSize.Height);
             drawingContext.DrawBitmap(_bitmap, sourceRect, destRect);
@@ -213,26 +209,6 @@ public sealed class VelloSurface : Control
         }
     }
 
-    private Span<byte> AcquireScratch(int width, int height)
-    {
-        int required = checked(width * height * 4);
-        if (_scratchBuffer is null || _scratchBuffer.Length < required)
-        {
-            _scratchBuffer = new byte[required];
-        }
-        return _scratchBuffer.AsSpan(0, required);
-    }
-
-    private static void CopyRows(ReadOnlySpan<byte> source, Span<byte> target, int width, int height, int stride)
-    {
-        int rowBytes = width * 4;
-        for (int y = 0; y < height; y++)
-        {
-            source.Slice(y * rowBytes, rowBytes)
-                .CopyTo(target.Slice(y * stride, rowBytes));
-        }
-    }
-
     private void DisposeResources()
     {
         _context?.Dispose();
@@ -281,7 +257,9 @@ public sealed class VelloSurface : Control
                 {
                     double averageFrameMs = _statsAccumulatorMs / _statsFrameCount;
                     double fps = averageFrameMs > 0 ? 1000.0 / averageFrameMs : 0;
-                    var stats = new FrameStats(Complexity, _scene.ElementCount, averageFrameMs, fps);
+                    int width = _bitmap?.PixelSize.Width ?? 0;
+                    int height = _bitmap?.PixelSize.Height ?? 0;
+                    var stats = new VelloFrameStats(averageFrameMs, fps, width, height);
                     FrameStatsUpdated?.Invoke(this, stats);
                     _statsAccumulatorMs = 0;
                     _statsFrameCount = 0;
@@ -291,15 +269,58 @@ public sealed class VelloSurface : Control
 
         _lastFrameTimestamp = timestamp;
         InvalidateVisual();
-        if (!_renderFailed)
+        if (!_renderFailed && Volatile.Read(ref _renderer) is not null)
         {
             RequestNextFrame();
         }
     }
 
-    ~VelloSurface()
+    private RenderContext CreateRenderContext(ushort width, ushort height)
+        => Volatile.Read(ref _useMultithreadedRendering)
+            ? new RenderContext(width, height)
+            : new RenderContext(width, height, RenderSettings.SingleThreaded);
+
+    private void LogRenderError(string stage, Exception exception)
     {
-        _scene.Dispose();
+        Exception root = exception.GetBaseException();
+        string detail = root == exception ? root.ToString() : $"{root}{Environment.NewLine}{exception}";
+
+        if (root is VelloException velloEx)
+        {
+            detail = $"{velloEx.Message} (code {velloEx.ErrorCode}){Environment.NewLine}{detail}";
+        }
+
+        string message = $"[VelloSurface] Error while {stage}: {detail}";
+        if (message == _lastRenderError)
+            return;
+
+        _lastRenderError = message;
+        Console.Error.WriteLine(message);
+    }
+
+    private void UpdateRenderer(IVelloRenderer? renderer)
+    {
+        Volatile.Write(ref _renderer, renderer);
+
+        if (renderer is null)
+        {
+            DisposeResources();
+            return;
+        }
+
+        _renderFailed = false;
+        _lastRenderError = null;
+        RequestNextFrame();
+    }
+
+    private void UpdateUseMultithreadedRendering(bool useMultithreaded)
+    {
+        Volatile.Write(ref _useMultithreadedRendering, useMultithreaded);
+
+        DisposeResources();
+        _renderFailed = false;
+        _lastRenderError = null;
+        RequestNextFrame();
     }
 
     private sealed class VelloDrawOperation : ICustomDrawOperation
@@ -338,28 +359,5 @@ public sealed class VelloSurface : Control
                    op._destRect == _destRect &&
                    Math.Abs(op._scaling - _scaling) < double.Epsilon;
         }
-    }
-
-    private RenderContext CreateRenderContext(ushort width, ushort height)
-        => UseMultithreadedRendering
-            ? new RenderContext(width, height)
-            : new RenderContext(width, height, RenderSettings.SingleThreaded);
-
-    private void LogRenderError(string stage, Exception exception)
-    {
-        Exception root = exception.GetBaseException();
-        string detail = root == exception ? root.ToString() : $"{root}{Environment.NewLine}{exception}";
-
-        if (root is VelloException velloEx)
-        {
-            detail = $"{velloEx.Message} (code {velloEx.ErrorCode}){Environment.NewLine}{detail}";
-        }
-
-        string message = $"[VelloSurface] Error while {stage}: {detail}";
-        if (message == _lastRenderError)
-            return;
-
-        _lastRenderError = message;
-        Console.Error.WriteLine(message);
     }
 }

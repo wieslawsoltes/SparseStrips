@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- NuGet metadata -->
+    <PackageId>Vello.Avalonia</PackageId>
+    <Description>Avalonia UI integration helpers and controls for the Vello CPU renderer.</Description>
+    <PackageTags>avalonia;graphics;rendering;vello;cpu</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vello\Vello.csproj" />
+  </ItemGroup>
+</Project>

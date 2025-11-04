@@ -4,8 +4,8 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Rendering;
 using Avalonia.VisualTree;
-using Vello.Samples.Avalonia.Controls;
-using Vello.Samples.Avalonia.Rendering;
+using Vello.Avalonia.Controls;
+using Vello.Avalonia.Rendering;
 
 namespace Vello.Samples.Avalonia;
 
@@ -26,13 +26,8 @@ public partial class MainView : UserControl
         AvaloniaXamlLoader.Load(this);
     }
 
-    private void OnFrameStatsUpdated(object? sender, FrameStats stats)
-    {
-        _viewModel.Complexity = stats.Complexity;
-        _viewModel.ElementCount = stats.ElementCount;
-        _viewModel.FrameTimeMilliseconds = stats.FrameTimeMilliseconds;
-        _viewModel.FramesPerSecond = stats.FramesPerSecond;
-    }
+    private void OnFrameStatsUpdated(object? sender, VelloFrameStats stats)
+        => _viewModel.OnFrameStats(stats);
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {

@@ -2,6 +2,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/Vello.svg)](https://www.nuget.org/packages/Vello/)
 [![NuGet](https://img.shields.io/nuget/v/Vello.Native.svg)](https://www.nuget.org/packages/Vello.Native/)
+[![NuGet](https://img.shields.io/nuget/v/Vello.Avalonia.svg)](https://www.nuget.org/packages/Vello.Avalonia/)
 
 **Status: Production Ready** ✅
 
@@ -25,6 +26,7 @@ SparseStrips/
 ├── dotnet/                    # .NET bindings
 │   ├── Vello.Native/          # P/Invoke layer (internal)
 │   ├── Vello/                 # High-level C# API (public)
+│   ├── Vello.Avalonia/        # Avalonia control + helpers (NuGet package)
 │   ├── Vello.Samples/         # 15 example applications
 │   ├── Vello.Tests/           # 85 unit tests (95.3% passing)
 │   └── runtimes/              # Native libraries (platform-specific)
@@ -110,6 +112,41 @@ context.RenderToPixmap(pixmap);
 ReadOnlySpan<PremulRgba8> pixels = pixmap.GetPixels();
 Console.WriteLine($"First pixel: R={pixels[0].R}, G={pixels[0].G}, B={pixels[0].B}");
 ```
+
+## Avalonia Integration
+
+Install the Avalonia host control from NuGet:
+
+```bash
+dotnet add package Vello.Avalonia
+```
+
+Drop the reusable `VelloSurface` into XAML and bind an `IVelloRenderer` implementation that drives your scene logic:
+
+```xml
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:vello="clr-namespace:Vello.Avalonia.Controls;assembly=Vello.Avalonia">
+  <vello:VelloSurface Renderer="{Binding Renderer}"
+                      UseMultithreadedRendering="{Binding UseMultithreadedRendering}" />
+</UserControl>
+```
+
+```csharp
+using Vello;
+using Vello.Avalonia.Rendering;
+
+public sealed class MotionMarkRenderer : IVelloRenderer
+{
+    private readonly MotionMarkScene _scene = new();
+
+    public void Render(RenderContext context, int pixelWidth, int pixelHeight)
+    {
+        _scene.Render(context, pixelWidth, pixelHeight);
+    }
+}
+```
+
+The control handles render-loop scheduling, context pooling, and stride-aware blitting into `WriteableBitmap`s. Subscribe to `FrameStatsUpdated` for averaged FPS/frame-time telemetry when profiling high-performance scenes.
 
 ## Examples
 

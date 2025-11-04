@@ -9,7 +9,7 @@
   <!-- Centralized versioning - synced with vello_cpu version -->
   <PropertyGroup>
     <VersionPrefix>0.0.4</VersionPrefix>
-    <VersionSuffix>alpha.2</VersionSuffix>
+    <VersionSuffix>alpha.3</VersionSuffix>
   </PropertyGroup>
 
   <!-- Common NuGet package metadata -->

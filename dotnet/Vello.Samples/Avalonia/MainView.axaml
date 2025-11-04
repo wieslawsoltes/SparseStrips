@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:Vello.Samples.Avalonia"
-             xmlns:controls="clr-namespace:Vello.Samples.Avalonia.Controls"
+             xmlns:vello="clr-namespace:Vello.Avalonia.Controls;assembly=Vello.Avalonia"
              x:Class="Vello.Samples.Avalonia.MainView"
              x:DataType="local:MainWindowViewModel"
              mc:Ignorable="d"
@@ -51,10 +51,10 @@
                       VerticalAlignment="Center"/>
       </StackPanel>
     </Border>
-    <controls:VelloSurface x:Name="Surface"
-                           Grid.Row="1"
-                           Complexity="{Binding Complexity}"
-                           UseMultithreadedRendering="{Binding UseMultithreadedRendering}"
-                           Margin="0"/>
+    <vello:VelloSurface x:Name="Surface"
+                        Grid.Row="1"
+                        Renderer="{Binding Renderer}"
+                        UseMultithreadedRendering="{Binding UseMultithreadedRendering}"
+                        Margin="0"/>
   </Grid>
 </UserControl>
