@@ -104,25 +104,32 @@ jobs:
     needs: managed
     env:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-    if: ${{ env.NUGET_API_KEY != '' }}
     steps:
+      - name: Check for API key
+        if: ${{ env.NUGET_API_KEY == '' }}
+        run: echo "NUGET_API_KEY secret is not configured; skipping publish job."
+
       - uses: actions/setup-dotnet@v4
+        if: ${{ env.NUGET_API_KEY != '' }}
         with:
           global-json-file: global.json
 
       - name: Download NuGet packages
         uses: actions/download-artifact@v4
+        if: ${{ env.NUGET_API_KEY != '' }}
         with:
           name: nuget-packages
           path: packages
 
       - name: Prepare packages for publishing
+        if: ${{ env.NUGET_API_KEY != '' }}
         run: |
           rm -rf publish
           mkdir publish
           find packages -type f -name '*.nupkg' -exec cp {} publish/ \;
 
       - name: Push packages to NuGet
+        if: ${{ env.NUGET_API_KEY != '' }}
         run: |
           set -euo pipefail
           for pkg in publish/*.nupkg; do
