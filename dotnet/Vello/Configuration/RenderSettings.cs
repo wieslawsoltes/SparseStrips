@@ -53,6 +53,7 @@ public readonly struct RenderSettings
     }
 
     public static RenderSettings Default => new();
+    public static RenderSettings SingleThreaded => new(numThreads: 0);
 
     internal VelloRenderSettings ToNative() => new()
     {
