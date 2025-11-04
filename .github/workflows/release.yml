@@ -1,0 +1,163 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_NOLOGO: true
+  CARGO_TERM_COLOR: always
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  native:
+    name: Build native (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: native-linux
+            shell: bash
+          - os: macos-latest
+            artifact: native-macos
+            shell: bash
+          - os: windows-latest
+            artifact: native-windows
+            shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build native library
+        run: cargo build --release
+        working-directory: vello_cpu_ffi
+        shell: ${{ matrix.shell }}
+
+      - name: Upload native artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: vello_cpu_ffi/target/release/*vello_cpu_ffi.*
+          if-no-files-found: error
+
+  managed:
+    name: Build managed packages
+    runs-on: ubuntu-latest
+    needs: native
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Download native artifacts (linux)
+        uses: actions/download-artifact@v4
+        with:
+          name: native-linux
+          path: artifacts/native-linux
+
+      - name: Download native artifacts (macos)
+        uses: actions/download-artifact@v4
+        with:
+          name: native-macos
+          path: artifacts/native-macos
+
+      - name: Download native artifacts (windows)
+        uses: actions/download-artifact@v4
+        with:
+          name: native-windows
+          path: artifacts/native-windows
+
+      - name: Stage native binaries for packaging
+        run: |
+          mkdir -p vello_cpu_ffi/target/release
+          for dir in artifacts/native-linux artifacts/native-macos artifacts/native-windows; do
+            if [ -d "$dir" ]; then
+              find "$dir" -type f -name '*vello_cpu_ffi.*' -exec cp -v {} vello_cpu_ffi/target/release/ \;
+            fi
+          done
+
+      - name: Restore .NET solution
+        run: dotnet restore dotnet/Vello.sln
+
+      - name: Build .NET solution
+        run: dotnet build dotnet/Vello.sln -c Release --no-restore
+
+      - name: Pack Vello.Native
+        run: dotnet pack dotnet/Vello.Native/Vello.Native.csproj -c Release -o dotnet/NuGet --no-restore --no-build
+
+      - name: Pack Vello
+        run: dotnet pack dotnet/Vello/Vello.csproj -c Release -o dotnet/NuGet --no-restore --no-build
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: dotnet/NuGet/*.nupkg
+          if-no-files-found: error
+
+  publish-nuget:
+    name: Publish to NuGet
+    runs-on: ubuntu-latest
+    needs: managed
+    if: ${{ secrets.NUGET_API_KEY != '' }}
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Download NuGet packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: packages
+
+      - name: Prepare packages for publishing
+        run: |
+          rm -rf publish
+          mkdir publish
+          find packages -type f -name '*.nupkg' -exec cp {} publish/ \;
+
+      - name: Push packages to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          set -euo pipefail
+          for pkg in publish/*.nupkg; do
+            echo "Publishing $pkg"
+            dotnet nuget push "$pkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          done
+
+  github-release:
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+    needs: managed
+    permissions:
+      contents: write
+    steps:
+      - name: Download NuGet packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: packages
+
+      - name: Prepare release assets
+        run: |
+          rm -rf release-assets
+          mkdir release-assets
+          find packages -type f -name '*.nupkg' -exec cp {} release-assets/ \;
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*.nupkg
+          draft: false
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
