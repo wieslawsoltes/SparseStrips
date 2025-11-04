@@ -124,12 +124,19 @@ jobs:
           name: nuget-packages
           path: artifacts/nuget
 
-      - name: Prepare local NuGet feed
+      - name: Prepare local NuGet feed (Unix)
+        if: ${{ runner.os != 'Windows' }}
         run: |
           rm -rf dotnet/NuGet
           mkdir -p dotnet/NuGet
           find artifacts/nuget -type f -name '*.nupkg' -exec cp {} dotnet/NuGet/ \;
-        shell: bash
+      - name: Prepare local NuGet feed (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force dotnet/NuGet -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path dotnet/NuGet | Out-Null
+          Get-ChildItem -Path artifacts/nuget -Recurse -Filter *.nupkg | Copy-Item -Destination dotnet/NuGet
 
       - name: Restore integration project
         run: dotnet restore dotnet/Vello.IntegrationTest/Vello.IntegrationTest.csproj
