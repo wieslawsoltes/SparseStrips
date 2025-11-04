@@ -129,6 +129,7 @@ jobs:
           rm -rf dotnet/NuGet
           mkdir -p dotnet/NuGet
           find artifacts/nuget -type f -name '*.nupkg' -exec cp {} dotnet/NuGet/ \;
+        shell: bash
 
       - name: Restore integration project
         run: dotnet restore dotnet/Vello.IntegrationTest/Vello.IntegrationTest.csproj
