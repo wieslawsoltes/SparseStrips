@@ -4,97 +4,89 @@
 [![NuGet](https://img.shields.io/nuget/v/Vello.Native.svg)](https://www.nuget.org/packages/Vello.Native/)
 [![NuGet](https://img.shields.io/nuget/v/Vello.Avalonia.svg)](https://www.nuget.org/packages/Vello.Avalonia/)
 
-**Status: Production Ready** ✅
+Comprehensive .NET 8.0 bindings for the [Vello Sparse Strips](https://github.com/linebender/vello/tree/main/sparse_strips) CPU renderer with 100% API coverage, zero-allocation paths, and end-to-end tooling across native and managed layers.
 
-High-performance .NET 8.0 bindings for the [Vello Sparse Strips](https://github.com/linebender/vello/tree/main/sparse_strips) CPU renderer with **100% API coverage**.
+---
 
-## Project Structure
+## Highlights
+
+- **Full surface area** – All 34 `RenderContext` methods, gradients, glyphs, masks, and blend modes implemented.
+- **Modern .NET stack** – Source generators via `LibraryImport`, blittable structs, `Span<T>` APIs, and idiomatic `IDisposable` patterns.
+- **High performance** – Zero-copy pixel access, SIMD (SSE2/AVX/AVX2/AVX512/NEON) detection, and multi-threaded render contexts.
+- **Cross-platform** – Windows, Linux, and macOS across x64 and ARM64, plus experimental WebAssembly builds.
+- **Verified quality** – 113 tests (unit, diagnostic, integration, performance) backed by BenchmarkDotNet harnesses.
+- **Batteries included** – Fifteen sample apps, Avalonia UI host, and detailed docs for architecture, native builds, and FFI design.
+
+---
+
+## NuGet Packages
+
+| Package | Description | Latest |
+|---------|-------------|--------|
+| `Vello` | Public, high-level C# API that surfaces the entire render pipeline. | [![NuGet](https://img.shields.io/nuget/v/Vello.svg)](https://www.nuget.org/packages/Vello/) |
+| `Vello.Native` | Internal P/Invoke layer that loads the Rust FFI artifacts. | [![NuGet](https://img.shields.io/nuget/v/Vello.Native.svg)](https://www.nuget.org/packages/Vello.Native/) |
+| `Vello.Avalonia` | Avalonia control + helpers for embedding live render contexts in .NET UI apps. | [![NuGet](https://img.shields.io/nuget/v/Vello.Avalonia.svg)](https://www.nuget.org/packages/Vello.Avalonia/) |
+
+---
+
+## Architecture Overview
 
 ```
 SparseStrips/
-├── extern/vello/              # Git submodule - Vello upstream
+├── extern/vello/              # Git submodule - Vello upstream repo
 │   └── sparse_strips/
-│       ├── vello_cpu/         # Core CPU renderer
-│       └── vello_common/      # Common utilities
+│       ├── vello_cpu/         # Core CPU renderer (Rust)
+│       └── vello_common/      # Shared math/utilities
 │
 ├── vello_cpu_ffi/             # Rust C-ABI FFI wrapper
-│   ├── Cargo.toml
-│   ├── build.rs
-│   └── src/
-│       └── lib.rs             # FFI exports
+│   ├── src/lib.rs             # Exported functions
+│   └── build.rs               # Platform-specific build glue
 │
-├── dotnet/                    # .NET bindings
-│   ├── src/                   # Shipping packages
-│   │   ├── Vello.Native/      # P/Invoke layer (internal)
-│   │   ├── Vello/             # High-level C# API (public)
-│   │   └── Vello.Avalonia/    # Avalonia control + helpers (NuGet package)
-│   ├── samples/               # Demo applications
-│   │   ├── Vello.Samples/     # 15 example applications
-│   │   ├── Vello.Examples/    # CLI samples
-│   │   └── MTTest/            # Multithreading investigation harness
-│   └── tests/                 # Automated + perf suites
-│       ├── Vello.Tests/       # 85 unit tests (95.3% passing)
-│       ├── Vello.DiagnosticTests/   # Deep diagnostics harness
-│       ├── Vello.Benchmarks/  # BenchmarkDotNet harness
-│       └── Vello.IntegrationTest/   # Package validation app
+├── dotnet/
+│   ├── src/                   # Shipping managed packages
+│   │   ├── Vello/             # Public API
+│   │   ├── Vello.Native/      # Low-level bindings
+│   │   └── Vello.Avalonia/    # UI integration helpers
+│   ├── samples/               # 15 demos (CLI + UI)
+│   └── tests/                 # Unit, diagnostics, perf, and integration suites
 │
-├── docs/                      # Documentation
-│   ├── API_COVERAGE.md        # Complete API coverage matrix
-│   ├── FFI_DESIGN.md          # FFI architecture and design
-│   ├── IMPLEMENTATION_PLAN.md # Development phases
-│   └── STATUS.md              # Project status
-│
-└── README.md                  # This file
+├── docs/                      # Design + status docs
+└── scripts/                   # Platform build helpers
 ```
 
-## Features
+See `docs/FFI_DESIGN.md`, `docs/API_COVERAGE.md`, and `docs/STATUS.md` for deeper architecture notes.
 
-- ✅ **100% API Coverage** - All 34 RenderContext methods implemented
-- ✅ **Complete Feature Set** - Images, gradients, blending, clipping, masking, glyphs
-- ✅ **Zero-Allocation Rendering** - `Span<T>/stackalloc` for text, gradients, PNG I/O (Phase 1 & 2 complete)
-- ✅ **High Performance** - Zero-copy pixel access via `ReadOnlySpan<T>`
-- ✅ **Modern .NET 8.0** - `LibraryImport`, blittable structs, `Span<T>` APIs
-- ✅ **SIMD Support** - SSE2, AVX, AVX2, AVX512, NEON
-- ✅ **Multithreading** - Configurable worker threads
-- ✅ **Cross-Platform** - Windows, Linux, macOS (x64, ARM64)
-- ✅ **Safe API** - `IDisposable` pattern, automatic cleanup
-- ✅ **Comprehensive Testing** - 113 tests (100% passing, including 32 performance tests)
-- ✅ **15 Examples** - Comprehensive example applications
+---
 
-## Building
+## System Requirements
 
-### Prerequisites
-
-- **Rust** 1.86+ (for vello_cpu_ffi)
-- **.NET 8.0 SDK** (for C# bindings)
-- **Platform-specific tools**:
-  - Windows: MSVC or MinGW
-  - Linux: GCC/Clang
+- Rust 1.86+ with the relevant targets (MSVC, GNU, Clang, wasm32) for native builds.
+- .NET 8.0 SDK for managed projects, tests, and sample apps.
+- Platform toolchains:
+  - Windows: MSVC Build Tools or MinGW
+  - Linux: GCC or Clang + `musl`/`glibc` dev packages as needed
   - macOS: Xcode Command Line Tools
 
-### Platform Scripts
+---
 
-For convenience, the `scripts/` directory exposes one-liners per target platform. Each script builds the Vello CPU FFI native library for both `Debug` and `Release` profiles:
+## Installation
 
-```powershell
-# Windows (PowerShell)
-.\scripts\build-windows.ps1
-```
+### Managed packages
+
+Add the packages required by your application profile:
 
 ```bash
-# Linux
-./scripts/build-linux.sh
-
-# macOS
-./scripts/build-macos.sh
-
-# WebAssembly (requires wasm-tools workload, Emscripten, and Rust nightly)
-./scripts/build-wasm.sh
+dotnet add package Vello
+dotnet add package Vello.Avalonia     # Optional UI host
 ```
 
-These helpers focus solely on the native Rust artifacts (including the `wasm32-unknown-emscripten` static archive). Build the .NET projects separately via `dotnet build` or `dotnet publish`.
+The `Vello.Native` package is pulled automatically as an implementation detail.
 
-Detailed setup notes for each platform (toolchain requirements, manual steps, and artifact locations) are available in [docs/native-build.md](docs/native-build.md).
+### Native artifacts
+
+The bindings expect the `vello_cpu_ffi` dynamic library to sit next to your application binaries. Use the provided scripts (see [Building From Source](#building-from-source)) or ship the prebaked binaries produced by CI.
+
+---
 
 ## Quick Start
 
@@ -111,226 +103,220 @@ context.SetPaint(Color.Magenta);
 // Draw filled rectangle
 context.FillRect(Rect.FromXYWH(100, 100, 200, 150));
 
-// Render to pixmap
+// Render to pixmap and inspect pixels
 using var pixmap = new Pixmap(800, 600);
 context.RenderToPixmap(pixmap);
-
-// Zero-copy pixel access
 ReadOnlySpan<PremulRgba8> pixels = pixmap.GetPixels();
 Console.WriteLine($"First pixel: R={pixels[0].R}, G={pixels[0].G}, B={pixels[0].B}");
 ```
 
-## Avalonia Integration
+---
 
-Install the Avalonia host control from NuGet:
+## User Guide
 
-```bash
-dotnet add package Vello.Avalonia
-```
+### 1. Prepare the native runtime
 
-Drop the reusable `VelloSurface` into XAML and bind an `IVelloRenderer` implementation that drives your scene logic:
+1. Initialize the Vello submodule (`git submodule update --init --recursive`).
+2. Install Rust 1.86+ and platform targets (`rustup target add x86_64-pc-windows-msvc`, etc.).
+3. Run the platform script from `scripts/` (e.g., `./scripts/build-linux.sh`). Each script produces both `Debug` and `Release` binaries under `vello_cpu_ffi/target/<triple>/<profile>/`.
 
-```xml
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:vello="clr-namespace:Vello.Avalonia.Controls;assembly=Vello.Avalonia">
-  <vello:VelloSurface Renderer="{Binding Renderer}"
-                      UseMultithreadedRendering="{Binding UseMultithreadedRendering}" />
-</UserControl>
-```
+Detailed notes for every platform live in `docs/native-build.md`, covering toolchain quirks, environment variables, and artifact locations.
 
-```csharp
-using Vello;
-using Vello.Avalonia.Rendering;
+### 2. Build and run the managed project
 
-public sealed class MotionMarkRenderer : IVelloRenderer
-{
-    private readonly MotionMarkScene _scene = new();
+1. Restore and build the bindings via `dotnet build dotnet/src/Vello`.
+2. Reference `Vello` (and optionally `Vello.Avalonia`) in your application.
+3. Ensure the native binaries accompany your executable (copy to output folder or use `NativeLibrary.SetDllImportResolver` if you need custom probing).
 
-    public void Render(RenderContext context, int pixelWidth, int pixelHeight)
-    {
-        _scene.Render(context, pixelWidth, pixelHeight);
-    }
-}
-```
+### 3. Rendering workflow
 
-The control handles render-loop scheduling, context pooling, and stride-aware blitting into `WriteableBitmap`s. Subscribe to `FrameStatsUpdated` for averaged FPS/frame-time telemetry when profiling high-performance scenes.
-
-## Examples
-
-See `dotnet/samples/Vello.Samples/` for 15 complete examples:
-
-1. **Simple rectangle** - Basic solid color rendering
-2. **Linear gradient** - Gradient fills with extend modes
-3. **Radial gradient** - Circular gradients
-4. **Bezier paths** - Complex path drawing with curves
-5. **Transforms** - Affine transformations
-6. **Zero-copy access** - Direct pixel manipulation with Span<T>
-7. **PNG I/O** - Save and load PNG images
-8. **Blend modes** - 28 blend mode combinations
-9. **Stroke styles** - Line joins, caps, and dashing
-10. **Sweep gradient** - Angular gradients
-11. **Blurred rounded rectangles** - Blur effects
-12. **Clipping** - Path-based clipping
-13. **Text rendering** - Font loading and glyph rendering
-14. **Masking** - Alpha and luminance masks
-15. **Raster images** - Image rendering with quality settings
-
-## Documentation
-
-Complete documentation is available in the `docs/` folder:
-
-- **[docs/STATUS.md](docs/STATUS.md)** - Project status and completion summary
-- **[docs/API_COVERAGE.md](docs/API_COVERAGE.md)** - Complete API coverage matrix (34/34 methods)
-- **[docs/FFI_DESIGN.md](docs/FFI_DESIGN.md)** - FFI architecture and design decisions
-- **[docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md)** - Development phases and plan
-
-## Architecture
-
-### Three-Layer Design
-
-1. **Rust FFI Layer** (`vello_cpu_ffi`) - C-ABI wrapper around vello_cpu
-2. **P/Invoke Layer** (`Vello.Native`) - Low-level .NET interop (internal)
-3. **Safe Wrapper** (`Vello`) - High-level C# API (public)
-
-### Key Design Decisions
-
-- **Opaque handles** for Rust types (prevents misuse)
-- **Blittable structures** for geometry (zero marshalling cost)
-- **LibraryImport** for source-generated P/Invoke
-- **Span&lt;T&gt;** for zero-copy pixel access
-- **IDisposable** for deterministic cleanup
-
-## Performance
-
-### Zero-Allocation Rendering (Phase 1 & 2) ✅
-
-All critical rendering paths now support **zero-allocation** rendering using `Span<T>` and `stackalloc`:
-
-#### Phase 1: Text & Gradient Rendering
-- **Text rendering** (≤256 chars): **0 allocations** (was 5 per call)
-- **Gradients** (≤32 stops): **0 allocations** (was 1 per call)
-- **Glyph rendering** (≤256 glyphs): **0 allocations** (was 1 per call)
-
-```csharp
-// Zero-allocation text rendering
-context.FillText(font, 48.0f, "Hello, World!", 10, 50);  // 0 allocations
-
-// Zero-allocation gradient rendering
-Span<ColorStop> stops = stackalloc ColorStop[3];
-stops[0] = new ColorStop(0.0f, Color.Red);
-stops[1] = new ColorStop(0.5f, Color.Green);
-stops[2] = new ColorStop(1.0f, Color.Blue);
-context.SetPaintLinearGradient(0, 0, 400, 300, stops);  // 0 allocations
-
-// Zero-allocation glyph conversion
-Span<Glyph> glyphs = stackalloc Glyph[text.Length];
-int count = font.TextToGlyphs(text, glyphs);  // 0 allocations
-context.FillGlyphs(font, 48.0f, glyphs.Slice(0, count));  // 0 allocations
-```
-
-#### Phase 2: PNG I/O & Pixmap Operations
-- **PNG loading**: Zero-copy from `ReadOnlySpan<byte>` sources
-- **PNG export**: Try-pattern with pre-allocated buffers
-- **Pixel byte access**: Zero-copy direct memory access
-
-```csharp
-// Zero-copy PNG loading from memory
-ReadOnlySpan<byte> pngData = File.ReadAllBytes("image.png");
-using var pixmap = Pixmap.FromPng(pngData);  // Zero-copy
-
-// Zero-allocation PNG export with pre-allocated buffer
-int size = pixmap.GetPngSize();
-Span<byte> buffer = stackalloc byte[size];
-if (pixmap.TryToPng(buffer, out int bytesWritten))
-{
-    File.WriteAllBytes("output.png", buffer.Slice(0, bytesWritten).ToArray());
-}
-
-// Zero-copy byte access to pixel data
-ReadOnlySpan<byte> bytes = pixmap.GetBytes();  // Direct memory access, no copy
-// Or copy to existing buffer:
-Span<byte> destination = new byte[pixmap.Width * pixmap.Height * 4];
-pixmap.CopyBytesTo(destination);
-
-// Zero-copy font loading from memory
-ReadOnlySpan<byte> fontData = File.ReadAllBytes("font.ttf");
-using var font = new FontData(fontData);  // Zero-copy
-```
-
-### Core Performance Features
-
-- **Zero-copy pixel access** - Direct memory access via `Span<PremulRgba8>`
-- **Blittable types** - No marshalling overhead
-- **SIMD optimizations** - Automatic hardware detection (SSE2, AVX, AVX2, AVX512, NEON)
-- **Multithreading** - Configurable worker threads
-- **Stackalloc** - Automatic stack allocation for typical sizes, heap for large data
+1. **Configure** `RenderSettings` to pin SIMD level, thread count, and quality mode.
+2. **Construct** a `RenderContext` sized for your output surface.
+3. **Prepare** paints, gradients, glyph buffers, images, and masks—`Span<T>` APIs avoid heap allocations.
+4. **Execute** draw commands (fill/stroke, clips, masks) in your desired order.
+5. **Resolve** into a `Pixmap`, copy bytes, or stream PNG data.
 
 Example configuration:
 
 ```csharp
 var settings = new RenderSettings(
-    level: SimdLevel.Avx2,      // Force AVX2
-    numThreads: 8,               // 8 worker threads
-    mode: RenderMode.OptimizeSpeed
-);
+    level: SimdLevel.Avx2,
+    numThreads: Environment.ProcessorCount,
+    mode: RenderMode.OptimizeSpeed);
 
 using var context = new RenderContext(1920, 1080, settings);
 ```
+
+### 4. Avalonia integration
+
+The `Vello.Avalonia` package exposes `VelloSurface`, a control that manages the render-context lifecycle, handles resize events, and blits frames into Avalonia bitmaps. Reference the namespace and bind a renderer:
+
+```xml
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vello="clr-namespace:Vello.Avalonia.Controls;assembly=Vello.Avalonia"
+        x:Class="MyApp.MainWindow">
+  <vello:VelloSurface Width="800"
+                      Height="600"
+                      Renderer="{Binding Renderer}"
+                      UseMultithreadedRendering="True" />
+</Window>
+```
+
+`Renderer` accepts any `IVelloRenderer` implementation. A minimal renderer might look like:
+
+```csharp
+using Vello;
+using Vello.Avalonia.Rendering;
+using Vello.Geometry;
+
+public sealed class SimpleRenderer : IVelloRenderer
+{
+    public void Render(RenderContext context, int pixelWidth, int pixelHeight)
+    {
+        context.Clear();
+        context.SetPaint(Color.FromRgba(0.15f, 0.18f, 0.24f, 1f));
+        context.FillRect(Rect.FromXYWH(0, 0, pixelWidth, pixelHeight));
+
+        Span<ColorStop> stops = stackalloc ColorStop[2];
+        stops[0] = new ColorStop(0f, Color.DeepSkyBlue);
+        stops[1] = new ColorStop(1f, Color.MediumPurple);
+        context.SetPaintLinearGradient(0, 0, pixelWidth, pixelHeight, stops);
+
+        var rect = Rect.FromXYWH(pixelWidth / 4f, pixelHeight / 4f, pixelWidth / 2f, pixelHeight / 2f);
+        context.FillRect(rect);
+    }
+}
+```
+
+Expose an instance of `SimpleRenderer` (or a more advanced scene graph) through your view model and bind it to `Renderer`. See `dotnet/samples/Vello.Samples/Avalonia` for a full MVVM integration with live frame statistics.
+
+---
+
+## Building From Source
+
+1. **Sync dependencies**
+
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+2. **Build native libraries**
+
+   ```powershell
+   # Windows (PowerShell)
+   .\scripts\build-windows.ps1
+   ```
+
+   ```bash
+   # Linux / macOS / WebAssembly
+   ./scripts/build-linux.sh
+   ./scripts/build-macos.sh
+   ./scripts/build-wasm.sh   # requires wasm-tools workload + Emscripten
+   ```
+
+3. **Build managed artifacts**
+
+   ```bash
+   dotnet build dotnet/Vello.sln
+   ```
+
+The scripts focus on `vello_cpu_ffi`. Use `dotnet publish` to ship self-contained applications. Refer to `docs/native-build.md` for manual toolchain setup and troubleshooting.
+
+---
+
+## Performance Profile
+
+- **Zero-allocation text/gradient/glyph rendering** via aggressive `Span<T>` usage and stackalloc heuristics.
+- **Zero-copy PNG I/O** – load from `ReadOnlySpan<byte>`, export into caller-provided buffers, and expose raw pixel bytes.
+- **SIMD-aware rendering** – runtime detection plus explicit overrides for SSE2 through AVX512 and NEON.
+- **Multi-threaded pipelines** – configurable worker pool for large surfaces.
+
+```csharp
+Span<ColorStop> stops = stackalloc ColorStop[3];
+stops[0] = new ColorStop(0.0f, Color.Red);
+stops[1] = new ColorStop(0.5f, Color.Green);
+stops[2] = new ColorStop(1.0f, Color.Blue);
+context.SetPaintLinearGradient(0, 0, 400, 300, stops);        // zero allocations
+
+Span<Glyph> glyphs = stackalloc Glyph[text.Length];
+int count = font.TextToGlyphs(text, glyphs);
+context.FillGlyphs(font, 48.0f, glyphs.Slice(0, count));      // zero allocations
+```
+
+More details live in `docs/perf/` and `docs/IMPLEMENTATION_PLAN.md`.
+
+---
 
 ## Platform Support
 
 | Platform | x64 | ARM64 | Status |
 |----------|-----|-------|--------|
-| Windows  | ✅  | ✅    | Planned |
-| Linux    | ✅  | ✅    | Planned |
-| macOS    | ✅  | ✅    | Planned |
+| Windows  | ✅  | ✅    | Supported |
+| Linux    | ✅  | ✅    | Supported |
+| macOS    | ✅  | ✅    | Supported |
+| WebAssembly | ⚙️  | ⚙️  | Experimental |
 
-## Development Status
+---
 
-✅ **COMPLETE - Production Ready** ✅
+## Quality & Testing
 
-All implementation phases have been completed:
+- `dotnet/tests/Vello.Tests` – 85 unit tests (95%+ pass rate; remaining experiments tracked in `docs/tests`).
+- `dotnet/tests/Vello.DiagnosticTests` – deep validation harness covering corner cases, threading, and disposal.
+- `dotnet/tests/Vello.Benchmarks` – BenchmarkDotNet suites for frame time, glyph throughput, and PNG I/O.
+- `dotnet/tests/Vello.IntegrationTest` – package validation and smoke tests executed before publishing.
+- Native benchmarks in `rust_api_bench` and `docs/perf/` ensure parity with upstream Vello performance.
 
-- ✅ Phase 1: Planning and Design
-- ✅ Phase 2: Rust FFI Layer (3,300+ lines)
-- ✅ Phase 3: .NET Binding Layer (4,500+ lines)
-- ✅ Phase 4: Core Rendering Methods
-- ✅ Phase 5: Advanced Features (gradients, images, text, masking)
-- ✅ Phase 6: Testing & Validation (85 tests, 81 active, 100% passing)
-- ✅ Phase 7: Documentation
+Run the full suite via:
 
-**100% API Coverage**: All 34 RenderContext methods implemented
+```bash
+dotnet test dotnet/Vello.sln
+```
 
-See [docs/STATUS.md](docs/STATUS.md) for detailed completion status.
+---
 
-## API Coverage
+## Samples & Tooling
 
-All vello_cpu RenderContext features are fully implemented:
+- `dotnet/samples/Vello.Samples` – 15 showcase scenarios (images, gradients, typography, masking).
+- `dotnet/samples/Vello.Examples` – CLI-first examples suitable for CI or scripting.
+- `dotnet/samples/MTTest` – multithreading exploration harness.
+- `BENCHMARKS.md` – summary of recent perf investigations.
 
-- ✅ **Raster Images** - Image rendering with quality and extend modes
-- ✅ **Gradients** - Linear, Radial, and Sweep gradients
-- ✅ **Blurred Rounded Rectangles** - Blur effects with standard deviation
-- ✅ **Blending & Compositing** - 16 Mix modes × 14 Compose modes = 28 combinations
-- ✅ **Clipping** - Path-based clipping layers
-- ✅ **Masking** - Alpha and luminance masks
-- ✅ **Glyphs** - All glyph types (CFF, Bitmap, COLRv0, COLRv1)
-- ✅ **Paint Transforms** - Affine transformations for paint
-- ✅ **Fill Rules** - NonZero and EvenOdd winding rules
-- ✅ **Strokes** - Width, joins, caps, miter limits, dashing
+---
 
-See [docs/API_COVERAGE.md](docs/API_COVERAGE.md) for the complete method-by-method comparison.
+## Documentation Hub
+
+- `docs/API_COVERAGE.md` – coverage matrix vs. upstream Vello APIs.
+- `docs/FFI_DESIGN.md` and `docs/ffi-interop-guidelines.md` – FFI architecture, safety rules, and calling conventions.
+- `docs/native-build.md` – native toolchain setup and artifact layout per platform.
+- `docs/IMPLEMENTATION_PLAN.md` & `docs/implementation-plan-missing-apis.md` – roadmap and completed milestones.
+- `docs/STATUS.md` – up-to-date delivery status, outstanding work, and risk log.
+- `docs/tests/` – test plans and diagnostic methodologies.
+- `docs/vello-hybrid-bindings-plan.md` & `docs/vello_cpu_recording_api_plan.md` – exploratory work for future bindings.
+
+---
+
+## Project Status
+
+**Feature complete.** All implementation phases (FFI, .NET bindings, advanced features, and docs) are complete, with 34/34 `RenderContext` methods exposed. See `docs/STATUS.md` for the authoritative state and `docs/API_COVERAGE.md` for the line-by-line checklist.
+
+---
 
 ## Contributing
 
-Contributions welcome! The implementation is complete, but improvements are always appreciated.
+Contributions are welcome—whether bug fixes, feature work, documentation, or performance experiments. Please open an issue to discuss significant changes, keep commits scoped, and ensure `dotnet format` + `dotnet test` pass locally. Native and managed guidelines live in `docs/FFI_DESIGN.md` and `docs/tests/`.
+
+---
 
 ## License
 
-This project is licensed under Apache-2.0 OR MIT, matching the Vello project.
+Dual-licensed under Apache-2.0 OR MIT, matching upstream Vello.
 
-- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+- Apache License, Version 2.0 – see `LICENSE-APACHE` or <http://www.apache.org/licenses/LICENSE-2.0>
+- MIT License – see `LICENSE-MIT` or <http://opensource.org/licenses/MIT>
+
+---
 
 ## Acknowledgments
 
-Built on top of [Vello Sparse Strips](https://github.com/linebender/vello/tree/main/sparse_strips) by the Linebender community.
+Built on top of [Vello Sparse Strips](https://github.com/linebender/vello/tree/main/sparse_strips) by the Linebender community and the contributors who created the original renderer. Thank you!
