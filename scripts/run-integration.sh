@@ -15,6 +15,11 @@ dotnet pack "$ROOT_DIR/dotnet/src/Vello/Vello.csproj" \
   --configuration Release \
   --output "$NUGET_DIR"
 
+echo "Packing local Vello.Avalonia..."
+dotnet pack "$ROOT_DIR/dotnet/src/Vello.Avalonia/Vello.Avalonia.csproj" \
+  --configuration Release \
+  --output "$NUGET_DIR"
+
 echo "Restoring integration test project..."
 dotnet restore "$TEST_PROJECT" \
   --source "$NUGET_DIR"

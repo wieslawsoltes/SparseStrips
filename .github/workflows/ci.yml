@@ -90,10 +90,13 @@ jobs:
         run: dotnet build dotnet/Vello.sln -c Release --no-restore
 
       - name: Pack Vello.Native
-        run: dotnet pack dotnet/Vello.Native/Vello.Native.csproj -c Release -o dotnet/NuGet --no-restore --no-build
+        run: dotnet pack dotnet/src/Vello.Native/Vello.Native.csproj -c Release -o dotnet/NuGet --no-restore --no-build
 
       - name: Pack Vello
-        run: dotnet pack dotnet/Vello/Vello.csproj -c Release -o dotnet/NuGet --no-restore --no-build
+        run: dotnet pack dotnet/src/Vello/Vello.csproj -c Release -o dotnet/NuGet --no-restore --no-build
+
+      - name: Pack Vello.Avalonia
+        run: dotnet pack dotnet/src/Vello.Avalonia/Vello.Avalonia.csproj -c Release -o dotnet/NuGet --no-restore --no-build
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
@@ -132,7 +135,7 @@ jobs:
         shell: bash
 
       - name: Restore integration project
-        run: dotnet restore dotnet/Vello.IntegrationTest/Vello.IntegrationTest.csproj
+        run: dotnet restore dotnet/tests/Vello.IntegrationTest/Vello.IntegrationTest.csproj
 
       - name: Run integration test
-        run: dotnet run --project dotnet/Vello.IntegrationTest/Vello.IntegrationTest.csproj -c Release
+        run: dotnet run --project dotnet/tests/Vello.IntegrationTest/Vello.IntegrationTest.csproj -c Release
